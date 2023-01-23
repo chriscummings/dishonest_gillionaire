@@ -1,6 +1,7 @@
 # Dishonest Gilionaire
 
 ![Money](tataru.gif "Money")
+
 [JoCat](https://www.youtube.com/watch?v=ZGWUkDk8eWo)
 
 
@@ -12,6 +13,8 @@ poetry shell
 django-admin startproject config .
 poetry run python manage.py runserver
 poetry run python manage.py migrate
+poetry run python manage.py test
+poetry run python manage.py makemigrations; poetry run python manage.py migrate
 ```
 
 # Useful links:
