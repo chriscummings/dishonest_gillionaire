@@ -1,3 +1,9 @@
+# Dishonest Gilionaire
+
+![Money](tataru.gif "Money")
+[JoCat](https://www.youtube.com/watch?v=ZGWUkDk8eWo)
+
+
 ## log
 ```
 poetry init
