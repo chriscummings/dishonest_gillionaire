@@ -1,0 +1,39 @@
+poetry init
+poetry add Django
+poetry shell
+django-admin startproject config .
+poetry run python manage.py runserver
+poetry run python manage.py migrate
+poetry run python manage.py test
+poetry run python manage.py makemigrations; poetry run python manage.py migrate
+poetry run python manage.py shell
+
+-
+
+Item.objects.all().count()
+Recipe.objects.all().count()
+Listing.objects.all().count()
+Sale.objects.all().count()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
