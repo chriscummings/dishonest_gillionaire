@@ -23,6 +23,9 @@ class Item(models.Model):
 		item.universalis_unresolved = True 
 		item.save()
 
+	def __str__(self):
+		return f'({self.guid}) {self.name}'
+
 class Recipe(models.Model):
 	""" Resulting item(s) and ingredients.
 	"""
@@ -32,11 +35,14 @@ class Recipe(models.Model):
 	result_amount = models.IntegerField()
 
 	# Relationships
-	item        = models.ForeignKey(Item, on_delete=models.CASCADE)
+	item        = models.ForeignKey(Item, related_name="recipe", on_delete=models.CASCADE)
 	ingredients = models.ManyToManyField(Item, related_name="recipes", through="RecipeItemIngredient")
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]	
+
+	def __str__(self):
+		return f'({self.guid}) {self.name} (recipe)'
 
 class RecipeItemIngredient(models.Model):
 	""" Many-to-many Recipe/Item through model.
@@ -66,6 +72,9 @@ class Listing(models.Model):
 	class Meta:
 		indexes = [models.Index(fields=['listing_guid'])]
 
+	def __str__(self):
+		return f'({self.id}) {self.price_per_unit}x{self.quantity} from {self.retainer_name}'
+
 class Sale(models.Model):
 	""" A sold market board listing.
 	"""
@@ -81,3 +90,7 @@ class Sale(models.Model):
 
 	class Meta:
 		indexes = [models.Index(fields=['sold_at', 'buyer_name'])]
+
+	def __str__(self):
+		return f'({self.id}) {self.price_per_unit}x{self.quantity} by {self.buyer_name}'
+

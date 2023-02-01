@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+Item:<br/>
+
+{{item.name}}<br/>
+{{item.icon}}<br/>
+{{item.guid}}<br/>
+{{item.northamerica_listings_updated_at}}<br/>
+{{item.northamerica_sales_updated_at}}<br/>
+{{item.universalis_unresolved}}<br/>
+
+<h3>Recent Sales:</h3>
+<ul>
+{% for sale in sales %}
+	<li>
+		{{sale.region}}-{{sale.world}} {{sale.price_per_unit}} x {{sale.quantity}} by {{sale.buyer_name}} on {{sale.sold_at}}
+	</li>	
+{% endfor %}
+</ul>
+
+<h3>Current Listings:</h3>
+<ul>
+{% for listing in listings %}
+	<li>
+		{{listing.region}}-{{listing.world}} {{listing.price_per_unit}} x {{listing.quantity}} by {{listing.retainer_name}} as of {{listing.created_at}}
+	</li>	
+{% endfor %}
+</ul>
+
+<h3>Recipe(s):</h3>
+# TODO: fixme: store and display recipe crafter profession.
+<br/>create recipe dicts? in view..</br>
+<ul>
+{% for recipe in recipes %}
+	<li> {{recipe.name}}<br>
+		<ul>
+
+		</ul>
+	</li>	
+{% endfor %}
+</ul>
+
+{% endblock content %}

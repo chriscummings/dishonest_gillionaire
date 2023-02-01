@@ -8,6 +8,9 @@ A FFXIV market data tool.
 
 ## Building/Updating the database
 
+* (Optional) Create the superuser. 
+`poetry run python manage.py createsuperuser`
+
 * (Optional) To truncate item, recipe and market data run the drop_data command. 
 `poetry run python manage.py drop_data`
 
