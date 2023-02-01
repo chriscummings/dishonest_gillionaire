@@ -2,18 +2,17 @@
 
 {% block content %}
 
-Item:<br/>
+<h1>{{item_summary.name}}</h1>
+{{item_summary.guid}}<br/>
+{{item_summary.icon}}<br/>
 
-{{item.name}}<br/>
-{{item.icon}}<br/>
-{{item.guid}}<br/>
-{{item.northamerica_listings_updated_at}}<br/>
-{{item.northamerica_sales_updated_at}}<br/>
-{{item.universalis_unresolved}}<br/>
+{{item_summary.northamerica_listings_updated_at}}
+{{item_summary.northamerica_sales_updated_at}}
+{{item_summary.universalis_unresolved}}
 
 <h3>Recent Sales:</h3>
 <ul>
-{% for sale in sales %}
+{% for sale in item_summary.sales %}
 	<li>
 		{{sale.region}}-{{sale.world}} {{sale.price_per_unit}} x {{sale.quantity}} by {{sale.buyer_name}} on {{sale.sold_at}}
 	</li>	
@@ -22,7 +21,7 @@ Item:<br/>
 
 <h3>Current Listings:</h3>
 <ul>
-{% for listing in listings %}
+{% for listing in item_summary.listings %}
 	<li>
 		{{listing.region}}-{{listing.world}} {{listing.price_per_unit}} x {{listing.quantity}} by {{listing.retainer_name}} as of {{listing.created_at}}
 	</li>	
@@ -30,15 +29,18 @@ Item:<br/>
 </ul>
 
 <h3>Recipe(s):</h3>
-# TODO: fixme: store and display recipe crafter profession.
-<br/>create recipe dicts? in view..</br>
 <ul>
-{% for recipe in recipes %}
-	<li> {{recipe.name}}<br>
+{% for recipe in item_summary.recipes %}
+	<li>
+		{{recipe.name}}
 		<ul>
-
+		{% for ingredient in recipe.ingredients %}
+			<li>
+				{{ingredient.name}}
+			</li>
+		{% endfor %}
 		</ul>
-	</li>	
+	</li>
 {% endfor %}
 </ul>
 

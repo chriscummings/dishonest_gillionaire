@@ -21,16 +21,8 @@ def item_index(request):
 def item_show(request, item_guid):
 	item = Item.objects.get(guid=item_guid)
 
-	listings = item.listings.all()[:5]
-	sales = item.sales.all()[:5]
-	recipes = item.recipe.all()
-
-
 	context = {
-		'item': item,
-		'listings': listings,
-		'sales': sales,
-		'recipes':recipes
+		'item_summary':item.summary()
 	}
 
 	return render(request, 'item_show.html', context)

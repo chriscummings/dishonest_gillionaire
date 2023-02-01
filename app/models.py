@@ -26,6 +26,37 @@ class Item(models.Model):
 	def __str__(self):
 		return f'({self.guid}) {self.name}'
 
+	# the short argument prevents recursion from related models.
+	def summary(self, sale_limit=3, listing_limit=3, short=False):
+		summary = {}
+
+		summary['id'] = self.id,
+		summary['name'] = self.name
+		summary['icon'] = self.icon
+		summary['guid'] = self.guid
+
+
+
+		summary['sales'] = []
+		if not short:
+			for sale in self.sales.all()[0:sale_limit]:
+				summary['sales'].append(sale.summary())
+
+		summary['listings'] = []
+		if not short:
+			for listing in self.listings.all()[0:listing_limit]:
+				summary['listings'].append(listing.summary())		
+
+		summary['recipes'] = []
+		if not short:
+			for recipe in self.recipe.all():
+				summary['recipes'].append(recipe.summary())
+
+
+
+
+		return summary
+
 class Recipe(models.Model):
 	""" Resulting item(s) and ingredients.
 	"""
@@ -43,6 +74,22 @@ class Recipe(models.Model):
 
 	def __str__(self):
 		return f'({self.guid}) {self.name} (recipe)'
+
+
+	def summary(self):
+		summary = {
+			'name': self.name,
+			'icon': self.icon,
+			'guid': self.guid,
+			'result_amount': self.result_amount,
+			'ingredients': []
+		}
+
+		for item in self.ingredients.all():
+			summary['ingredients'].append(item.summary(short=True))
+
+		return summary
+
 
 class RecipeItemIngredient(models.Model):
 	""" Many-to-many Recipe/Item through model.
@@ -75,6 +122,20 @@ class Listing(models.Model):
 	def __str__(self):
 		return f'({self.id}) {self.price_per_unit}x{self.quantity} from {self.retainer_name}'
 
+	def summary(self):
+		return {
+			'id': self.id,
+			'region': self.region,
+			'world': self.world,
+			'guid': self.listing_guid,
+			'retainer_guid': self.retainer_guid,
+			'retainer_name': self.retainer_name,
+			'price_per_unit': self.price_per_unit,
+			'quantity': self.quantity,
+			'total': self.total,
+			'created_at': self.created_at
+		}
+
 class Sale(models.Model):
 	""" A sold market board listing.
 	"""
@@ -94,3 +155,13 @@ class Sale(models.Model):
 	def __str__(self):
 		return f'({self.id}) {self.price_per_unit}x{self.quantity} by {self.buyer_name}'
 
+	def summary(self):
+		return {
+			'id': self.id,		
+			'region': self.region,
+			'world': self.world,
+			'price_per_unit': self.price_per_unit,
+			'quantity': self.quantity,
+			'buyer_name': self.buyer_name,
+			'sold_at': self.sold_at
+		}
