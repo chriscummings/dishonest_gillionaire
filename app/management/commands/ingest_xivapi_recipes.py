@@ -28,9 +28,7 @@ def ingest_recipes():
 	recipe_json = json.load(open(INPUT_FILE))
 
 	for r in recipe_json:
-
 		recipe = Recipe.objects.filter(guid=r['ID'])
-
 		if not recipe:
 			# Ignore old/invalid recipes.
 			if r['AmountResult'] == 0: continue
@@ -47,6 +45,7 @@ def ingest_recipes():
 			recipe.name          = r['Name']
 			recipe.icon          = r['ItemResult']['Icon']
 			recipe.guid          = r['ID']
+			recipe.profession    = r['ClassJob']['Name']
 			recipe.item          = item
 			recipe.result_amount = r['AmountResult']
 			recipe.save()

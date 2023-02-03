@@ -29,19 +29,7 @@
 </ul>
 
 <h3>Recipe(s):</h3>
-<ul>
-{% for recipe in item_summary.recipes %}
-	<li>
-		{{recipe.name}}
-		<ul>
-		{% for ingredient in recipe.ingredients %}
-			<li>
-				{{ingredient.name}}
-			</li>
-		{% endfor %}
-		</ul>
-	</li>
-{% endfor %}
-</ul>
+
+-
 
 {% endblock content %}

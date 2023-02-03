@@ -6,6 +6,7 @@ class Item(models.Model):
 	name                             = models.TextField()
 	icon                             = models.TextField()
 	guid                             = models.IntegerField() # Source/official item ID.
+	can_be_hq                        = models.BooleanField(default=True)
 	northamerica_listings_updated_at = models.DateTimeField(null=True)
 	northamerica_sales_updated_at    = models.DateTimeField(null=True)
 	universalis_unresolved           = models.BooleanField(default=False)
@@ -29,7 +30,7 @@ class Item(models.Model):
 	# the short argument prevents recursion from related models.
 	def summary(self, sale_limit=3, listing_limit=3, short=False):
 		summary = {}
-
+		summary['klass'] = 'item',
 		summary['id'] = self.id,
 		summary['name'] = self.name
 		summary['icon'] = self.icon
@@ -64,10 +65,12 @@ class Recipe(models.Model):
 	icon          = models.TextField(null=True)
 	guid          = models.IntegerField() # Source/official recipe ID.
 	result_amount = models.IntegerField()
+	profession    = models.TextField(null=True)
 
 	# Relationships
 	item        = models.ForeignKey(Item, related_name="recipe", on_delete=models.CASCADE)
 	ingredients = models.ManyToManyField(Item, related_name="recipes", through="RecipeItemIngredient")
+	#items instead?, materials perhaps?
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]	
@@ -81,16 +84,18 @@ class Recipe(models.Model):
 			'name': self.name,
 			'icon': self.icon,
 			'guid': self.guid,
+			'profession': self.profession,
 			'result_amount': self.result_amount,
 			'ingredients': []
 		}
 
 		for item in self.ingredients.all():
-			summary['ingredients'].append(item.summary(short=True))
+			# TODO: !!? calling short summary on this to prevent recursive action... maybe the argument should be long=False??
+			summary['ingredients'].append(item.summary(short=False, sale_limit=0, listing_limit=0))
 
 		return summary
 
-
+# Ingredient instead?
 class RecipeItemIngredient(models.Model):
 	""" Many-to-many Recipe/Item through model.
 	"""
