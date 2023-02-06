@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand, CommandError
 from app.models import *
 
 
-INPUT_FILE = "data/ffxivapi_item_list.json"
+INPUT_FILE = "data/xivapi_item_list.json"
 
 
 def ingest_item_list():

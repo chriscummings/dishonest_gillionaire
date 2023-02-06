@@ -12,7 +12,7 @@ from app.utils import fetch_json
 
 # FIXME: private key in repo
 ENDPOINT = "https://xivapi.com/recipe?private_key=dd9f8560cb57415684fcfa1d1005e17eb5450d1a1c0f46ba8dd7ed9565bcb8ce"
-OUTPUT_FILE = "data/ffxivapi_recipe_list.json"
+OUTPUT_FILE = "data/xivapi_recipe_list.json"
 
 
 def generate_item_list_json():

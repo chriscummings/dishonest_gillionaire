@@ -1,12 +1,21 @@
 from django.db import models
 
 class Item(models.Model):
-	""" And in-game item.
-	"""
+	""" And in-game item. """
+	
 	name                             = models.TextField()
 	icon                             = models.TextField()
 	guid                             = models.IntegerField() # Source/official item ID.
 	can_be_hq                        = models.BooleanField(default=True)
+	stack_size                       = models.IntegerField(null=True)
+	jobs                             = models.TextField(null=True)
+	is_dyeable                       = models.BooleanField(default=False)
+	is_glamourous                    = models.BooleanField(default=False) #?
+	is_untradable                    = models.BooleanField(default=False)
+	is_unique                        = models.BooleanField(default=False)
+	ui_category                      = models.TextField(null=True)
+	vendor_price                     = models.IntegerField(null=True)
+
 	northamerica_listings_updated_at = models.DateTimeField(null=True)
 	northamerica_sales_updated_at    = models.DateTimeField(null=True)
 	universalis_unresolved           = models.BooleanField(default=False)
@@ -37,6 +46,16 @@ class Item(models.Model):
 		summary['guid'] = self.guid
 
 
+		summary['can_be_hq'] = self.can_be_hq
+		summary['stack_size'] = self.stack_size
+		summary['jobs'] = self.jobs
+		summary['is_dyeable'] = self.is_dyeable
+		summary['is_glamourous'] = self.is_glamourous
+		summary['is_untradable'] = self.is_untradable
+		summary['is_unique'] = self.is_unique
+		summary['ui_category'] = self.ui_category
+		summary['vendor_price'] = self.vendor_price
+
 
 		summary['sales'] = []
 		if not short:
@@ -50,11 +69,8 @@ class Item(models.Model):
 
 		summary['recipes'] = []
 		if not short:
-			for recipe in self.recipe.all():
+			for recipe in self.recipes.all():
 				summary['recipes'].append(recipe.summary())
-
-
-
 
 		return summary
 
@@ -68,16 +84,14 @@ class Recipe(models.Model):
 	profession    = models.TextField(null=True)
 
 	# Relationships
-	item        = models.ForeignKey(Item, related_name="recipe", on_delete=models.CASCADE)
-	ingredients = models.ManyToManyField(Item, related_name="recipes", through="RecipeItemIngredient")
-	#items instead?, materials perhaps?
+	item      = models.ForeignKey(Item, related_name="recipe", on_delete=models.CASCADE)
+	materials = models.ManyToManyField(Item, related_name="recipes", through="Ingredient")
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]	
 
 	def __str__(self):
 		return f'({self.guid}) {self.name} (recipe)'
-
 
 	def summary(self):
 		summary = {
@@ -95,15 +109,14 @@ class Recipe(models.Model):
 
 		return summary
 
-# Ingredient instead?
-class RecipeItemIngredient(models.Model):
-	""" Many-to-many Recipe/Item through model.
-	"""
+class Ingredient(models.Model):
+	""" Many-to-many Recipe/Item through model. """
+
 	count  = models.IntegerField(null=True)
 
 	# Relationships
-	item   = models.ForeignKey(Item, related_name="enrollments", on_delete=models.CASCADE)
-	recipe = models.ForeignKey(Recipe, related_name="enrollments", on_delete=models.CASCADE)
+	item   = models.ForeignKey(Item, related_name="ingredients", on_delete=models.CASCADE)
+	recipe = models.ForeignKey(Recipe, related_name="ingredients", on_delete=models.CASCADE)
 
 class Listing(models.Model):
 	""" A market board listing.

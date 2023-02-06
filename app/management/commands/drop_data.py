@@ -11,6 +11,6 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		Sale.objects.all().delete()
 		Listing.objects.all().delete()
-		RecipeItemIngredient.objects.all().delete()
+		Ingredient.objects.all().delete()
 		Recipe.objects.all().delete()
 		Item.objects.all().delete()

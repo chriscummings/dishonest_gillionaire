@@ -13,11 +13,11 @@ import requests
 from app.models import *
 
 
-INPUT_FILE = "data/ffxivapi_recipes.json"
+INPUT_FILE = "data/xivapi_recipes.json"
 
 
 def create_ingredient(recipe, item, count):
-	ingredient = RecipeItemIngredient()
+	ingredient = Ingredient()
 	ingredient.count = count
 	ingredient.item = item
 	ingredient.recipe = recipe
@@ -25,8 +25,11 @@ def create_ingredient(recipe, item, count):
 
 def ingest_recipes():
 	start_time = datetime.datetime.now()
+
+	print("Loading file...")
 	recipe_json = json.load(open(INPUT_FILE))
 
+	print("Parsing file...")
 	for r in recipe_json:
 		recipe = Recipe.objects.filter(guid=r['ID'])
 		if not recipe:
@@ -49,6 +52,8 @@ def ingest_recipes():
 			recipe.item          = item
 			recipe.result_amount = r['AmountResult']
 			recipe.save()
+
+			print(recipe.guid)
 
 			# There are 10 (0-9) recipe ingredients max. There are always "static" keys for each of the 10 possible ingredients.
 			for i in range(0,10):

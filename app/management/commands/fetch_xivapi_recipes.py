@@ -11,21 +11,22 @@ from app.models import *
 from app.utils import fetch_json
 
 
-INPUT_FILE = "data/ffxivapi_recipe_list.json"
-OUTPUT_FILE = "data/ffxivapi_recipes.json"
+INPUT_FILE = "data/xivapi_recipe_list.json"
+OUTPUT_FILE = "data/xivapi_recipes.json"
 
 
 def ingest_recipe_list():
+	print("Loading file...")
 	recipe_list_json = json.load(open(INPUT_FILE))
 
+	print("Parsing file...")
 	recipes = []
-
 	for r in recipe_list_json:
 		guid = r['ID']
 
 		endpoint = "https://xivapi.com/Recipe/"+str(r['ID'])+"?private_key=dd9f8560cb57415684fcfa1d1005e17eb5450d1a1c0f46ba8dd7ed9565bcb8ce"
 		api_resp = fetch_json(endpoint)
-
+		print(guid)
 		recipes.append(api_resp)
 
 	with open(OUTPUT_FILE, "w") as json_file:

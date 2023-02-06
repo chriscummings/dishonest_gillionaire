@@ -2,9 +2,28 @@
 
 {% block content %}
 
+{% load custom_tags %}
+
+
+{% render_recipes item_summary %}
+
 <h1>{{item_summary.name}}</h1>
 {{item_summary.guid}}<br/>
 {{item_summary.icon}}<br/>
+
+Job(s): {{item_summary.jobs}}<br/>
+Can be HQ: {{item_summary.can_be_hq}}<br/>
+Stack size: {{item_summary.stack_size}}<br/>
+Dyeable: {{item_summary.is_dyeable}}<br/>
+Glamourous: {{item_summary.is_glamourous}}<br/>
+Tradeable: {{item_summary.is_untradable}}<br/>
+Unique: {{item_summary.is_unique}}<br/>
+Category: {{item_summary.ui_category}}<br/>
+
+Vendor Price: {{item_summary.vendor_price}}<br/>
+
+
+
 
 {{item_summary.northamerica_listings_updated_at}}
 {{item_summary.northamerica_sales_updated_at}}
@@ -31,5 +50,7 @@
 <h3>Recipe(s):</h3>
 
 -
+
+{{item_summary}}
 
 {% endblock content %}

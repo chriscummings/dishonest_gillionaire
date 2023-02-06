@@ -18,10 +18,19 @@ Sale.objects.all().count()
 
 
 
+Item attributes to store:
+=========================
+CanBeHq
+StackSize
+ClassJobCategory:Name
+IsDyeable
+IsGlamourous?
+IsUntradable?
+IsUnique?
+ItemUICategory:Name?
 
-
-
-
+Aka Oni Hara-ate
+https://xivapi.com/Item/19064?private_key=dd9f8560cb57415684fcfa1d1005e17eb5450d1a1c0f46ba8dd7ed9565bcb8ce
 
 
 

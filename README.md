@@ -26,7 +26,7 @@ A FFXIV market data tool.
 * To download all recipes from XIVAPI (only needed on game update, downloads JSON to ./data):
 `poetry run python manage.py fetch_xivapi_recipe_list`
 * To download all recipe details from XIVAPI (only needed on game update, downloads JSON to ./data):
-`poetry run python manage.py fetch_ffxivapi_recipes`
+`poetry run python manage.py fetch_xivapi_recipes`
 * To ingest the recipes downloaded from XIVAPI:
 `poetry run python manage.py ingest_xivapi_recipes`
 

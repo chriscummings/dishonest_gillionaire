@@ -28,4 +28,6 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		i=Item.objects.get(guid=19584)
 		s=i.summary(sale_limit=0, listing_limit=0)
+		p(s)
+		print("-------------------")
 		process(s)
