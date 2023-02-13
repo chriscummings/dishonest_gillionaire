@@ -1,4 +1,4 @@
-# Dishonest Gilionaire
+# Dishonest Gillionaire
 
 A FFXIV market data tool.
 
