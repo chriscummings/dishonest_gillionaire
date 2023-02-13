@@ -3,10 +3,10 @@ from app.api_handling import XivApi
 
 
 class Command(BaseCommand):
-	""" Required class for using manage.py to invoke tasks.
+	"""Required class for using manage.py to invoke tasks.
 	"""
 	help = ''
 
 	def handle(self, *args, **options):
 		handler = XivApi()
-		handler.fetch_recipe_details()
+		handler.ingest_item_details()

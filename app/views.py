@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.utils import timezone
 from .models import *
+from .forms import SearchBarForm
 
 class HomePageView(TemplateView):
 	template_name = 'home.html'
@@ -27,5 +28,11 @@ def item_show(request, item_guid):
 
 	return render(request, 'item_show.html', context)
 
+def results_view(request):
+	form = SearchBarForm(request.POST)
+	if form.is_valid():
+		items = Item.objects.filter(name__contains=form.cleaned_data['item_name'].lower())
 
+	context = {'items': items}
+	return render(request, 'search_results.html', context)
 

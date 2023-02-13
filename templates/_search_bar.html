@@ -1,0 +1,5 @@
+<form action="/results/" method="POST" id="item_search_bar">
+	{% csrf_token %}
+	{{ search_form }}
+	<input type="submit" value="Submit">
+</form>

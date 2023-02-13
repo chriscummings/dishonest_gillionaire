@@ -2,10 +2,17 @@
 	<style>
 		body {
 			color:#ffd22b;
-			background: #111;
+			background: #111; 
+		}
+
+		/* Hide django form label */
+		#item_search_bar label{
+			display:none;
 		}
 	</style>
 </header>
+
+{% include '_search_bar.html' %}
 
 {% block content %}
 {% endblock content %}

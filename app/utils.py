@@ -1,6 +1,15 @@
 import requests
 import time
 import json
+from app.forms import SearchBarForm
+
+
+
+
+
+def inject_form(request):
+    return {'search_form': SearchBarForm()}
+
 
 def fetch_json(url):
 	""" 

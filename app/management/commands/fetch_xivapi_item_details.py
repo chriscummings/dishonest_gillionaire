@@ -9,4 +9,4 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		handler = XivApi()
-		handler.fetch_recipe_details()
+		handler.fetch_item_details()

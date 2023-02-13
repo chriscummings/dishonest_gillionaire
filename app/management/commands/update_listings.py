@@ -1,5 +1,8 @@
+""" Fetches market board item listings from Universalis API. 
+"""
+
 from django.core.management.base import BaseCommand, CommandError
-from app.api_handling import XivApi
+from app.api_handling import Universalis
 
 
 class Command(BaseCommand):
@@ -8,5 +11,5 @@ class Command(BaseCommand):
 	help = ''
 
 	def handle(self, *args, **options):
-		handler = XivApi()
-		handler.fetch_recipe_details()
+		handler = Universalis()
+		handler.fetch_listings()

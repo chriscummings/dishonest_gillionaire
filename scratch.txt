@@ -7,7 +7,7 @@ poetry run python manage.py migrate
 poetry run python manage.py test
 poetry run python manage.py makemigrations; poetry run python manage.py migrate
 poetry run python manage.py shell
-
+poetry run python manage.py test
 -
 
 Item.objects.all().count()
@@ -32,9 +32,48 @@ ItemUICategory:Name?
 Aka Oni Hara-ate
 https://xivapi.com/Item/19064?private_key=dd9f8560cb57415684fcfa1d1005e17eb5450d1a1c0f46ba8dd7ed9565bcb8ce
 
+---
 
 
 
+
+# def _format_summary_recipes(item, indent=0):
+# 	formatted_string = ""
+
+# 	indention = ""
+
+# 	for i in range(0, indent):
+# 		indention += "\t"
+
+# 	indent += 1
+
+# 	# Ignore top-level item that's without a material_count.
+# 	if 'material_count' in item:
+# 		formatted_string += f"\n{indention}<a href=\"/items/{item['guid']}\">{item['name']} x{item['material_count']}</a>\n"
+
+# 	formatted_string += f"{indention}<ul>\n"
+
+# 	for recipe in item['recipes']:
+
+# 		formatted_string += f"{indention}{indention}<li>\n"
+# 		formatted_string += f"{indention}{indention}Recipe: ({recipe['profession']}):\n"
+# 		formatted_string += f"{indention}{indention}<ul>\n"
+# 		for ingredient in recipe['ingredients']:
+# 			formatted_string += f"{indention}{indention}<li>{_format_summary_recipes(ingredient, indent)}</li>\n"
+# 		formatted_string += f"{indention}{indention}</li>\n"
+
+# 		formatted_string += f"{indention}{indention}</li>\n"
+# 		formatted_string += f"{indention}{indention}</ul>\n"
+# 		formatted_string += f"{indention}{indention}</li>\n"
+
+# 	formatted_string += f"{indention}</ul>\n"
+
+# 	return formatted_string
+
+
+---
+
+https://medium.com/@nartinho/how-to-inject-a-form-in-all-pages-in-django-4f4a4ca0e5b8
 
 
 

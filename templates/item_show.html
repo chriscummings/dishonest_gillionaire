@@ -4,9 +4,6 @@
 
 {% load custom_tags %}
 
-
-{% render_recipes item_summary %}
-
 <h1>{{item_summary.name}}</h1>
 {{item_summary.guid}}<br/>
 {{item_summary.icon}}<br/>
@@ -49,8 +46,8 @@ Vendor Price: {{item_summary.vendor_price}}<br/>
 
 <h3>Recipe(s):</h3>
 
--
-
-{{item_summary}}
+{% autoescape off %}
+{% render_recipes item_summary %}
+{% endautoescape %}
 
 {% endblock content %}

@@ -3,21 +3,12 @@ from pprint import pprint as p
 from django.core.management.base import BaseCommand, CommandError
 from django.urls import re_path as url
 
+from django.conf import settings
 
-def process(item, indent=0):
-	indention = ""
-
-	for i in range(0, indent):
-		indention += "\t"
-
-	print(f"{indention}* Item: {item['name']}")
-
-	indent += 1
-
-	for recipe in item['recipes']:
-		print(f"{indention}Recipe: {recipe['profession']} profession:")
-		for ingredient in recipe['ingredients']:
-			process(ingredient, indent)
+from app.api_handling import *
+from app.utils import fetch_json
+import logging
+import time
 
 
 class Command(BaseCommand):
@@ -26,8 +17,52 @@ class Command(BaseCommand):
 	help = ''
 
 	def handle(self, *args, **options):
-		i=Item.objects.get(guid=19584)
-		s=i.summary(sale_limit=0, listing_limit=0)
-		p(s)
-		print("-------------------")
-		process(s)
+		logger = logging.getLogger(__name__)
+		
+
+
+
+		# ## Recipes
+		# data = []
+		# for objectID in [3451,3626,3627,3612,3640,3641,1141]:
+		# 	data.append(fetch_json(f"https://xivapi.com/recipe/{objectID}?private_key={getattr(settings, 'XIVAPI_KEY', None)}"))
+		# with open("./junk.recipes.json", "w") as json_file:
+		# 	json_file.write(json.dumps(data, indent=4))
+
+		# ## Items
+		# data = []
+		# for objectID in [19584,11,8,19947,19957,5116,9,19928,10,19933,19983,19984,12,7,5518,19985,19986,5491,5522]:
+		# 	data.append(fetch_json(f"https://xivapi.com/item/{objectID}?private_key={getattr(settings, 'XIVAPI_KEY', None)}"))
+		# with open("./junk.items.json", "w") as json_file:
+		# 	json_file.write(json.dumps(data, indent=4))
+
+
+#--
+		
+		# item=Item.objects.get(guid=19584)	
+		# p(item.summary())		
+		# process(item.summary())
+
+#--
+
+		handler = Universalis()
+		while True:
+			logger.info('Attempting to connect to API')
+			handler.fetch_sales()
+			print("Going to sleep...")
+			time.sleep(60 * 20)
+			handler.fetch_listings()
+			print("Going to sleep...")
+			time.sleep(60 * 20)
+
+
+
+
+
+
+
+
+
+
+
+

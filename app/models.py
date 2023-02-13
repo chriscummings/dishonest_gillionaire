@@ -1,9 +1,10 @@
 from django.db import models
+import pdb
+
 
 class Item(models.Model):
-	""" And in-game item. """
-	
 	name                             = models.TextField()
+	display_name                     = models.TextField(null=True)
 	icon                             = models.TextField()
 	guid                             = models.IntegerField() # Source/official item ID.
 	can_be_hq                        = models.BooleanField(default=True)
@@ -26,10 +27,6 @@ class Item(models.Model):
 	@staticmethod
 	def flag_universalis_unresolved(item_guid):
 		item = Item.objects.get(guid=item_guid)
-
-		# FIXME: handle this?
-		if not item: raise "Item "+str(item_guid)+" not found."
-
 		item.universalis_unresolved = True 
 		item.save()
 
@@ -45,7 +42,6 @@ class Item(models.Model):
 		summary['icon'] = self.icon
 		summary['guid'] = self.guid
 
-
 		summary['can_be_hq'] = self.can_be_hq
 		summary['stack_size'] = self.stack_size
 		summary['jobs'] = self.jobs
@@ -55,7 +51,6 @@ class Item(models.Model):
 		summary['is_unique'] = self.is_unique
 		summary['ui_category'] = self.ui_category
 		summary['vendor_price'] = self.vendor_price
-
 
 		summary['sales'] = []
 		if not short:
@@ -71,12 +66,12 @@ class Item(models.Model):
 		if not short:
 			for recipe in self.recipes.all():
 				summary['recipes'].append(recipe.summary())
+				continue # REMOVE ME!
 
 		return summary
 
+
 class Recipe(models.Model):
-	""" Resulting item(s) and ingredients.
-	"""
 	name          = models.TextField()
 	icon          = models.TextField(null=True)
 	guid          = models.IntegerField() # Source/official recipe ID.
@@ -84,8 +79,8 @@ class Recipe(models.Model):
 	profession    = models.TextField(null=True)
 
 	# Relationships
-	item      = models.ForeignKey(Item, related_name="recipe", on_delete=models.CASCADE)
-	materials = models.ManyToManyField(Item, related_name="recipes", through="Ingredient")
+	item      = models.ForeignKey(Item, related_name="recipes", on_delete=models.CASCADE)
+	materials = models.ManyToManyField(Item, related_name="xxx", through="Ingredient")
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]	
@@ -103,11 +98,12 @@ class Recipe(models.Model):
 			'ingredients': []
 		}
 
-		for item in self.ingredients.all():
+		for ingredient in self.ingredients.all():
 			# TODO: !!? calling short summary on this to prevent recursive action... maybe the argument should be long=False??
-			summary['ingredients'].append(item.summary(short=False, sale_limit=0, listing_limit=0))
+			summary['ingredients'].append(ingredient.summary(short=False, sale_limit=0, listing_limit=0))
 
 		return summary
+
 
 class Ingredient(models.Model):
 	""" Many-to-many Recipe/Item through model. """
@@ -117,6 +113,17 @@ class Ingredient(models.Model):
 	# Relationships
 	item   = models.ForeignKey(Item, related_name="ingredients", on_delete=models.CASCADE)
 	recipe = models.ForeignKey(Recipe, related_name="ingredients", on_delete=models.CASCADE)
+
+
+	def summary(self, short=False, sale_limit=0, listing_limit=0):
+		item_summary = {}
+
+		item_summary = self.item.summary()
+
+		item_summary["material_count"] = self.count
+
+		return item_summary
+
 
 class Listing(models.Model):
 	""" A market board listing.
@@ -130,6 +137,7 @@ class Listing(models.Model):
 	quantity       = models.IntegerField()
 	total          = models.IntegerField()
 	created_at     = models.DateTimeField(auto_now_add=True)
+	hq             = models.BooleanField(default=False)
 
 	# Relationships
 	item = models.ForeignKey(Item, related_name='listings', on_delete=models.CASCADE)
@@ -154,6 +162,55 @@ class Listing(models.Model):
 			'created_at': self.created_at
 		}
 
+
+class Region(models.Model):
+	name = models.TextField()
+
+
+class DataCenter(models.Model):
+	name = models.TextField()
+
+	# Relationships
+	region = models.ForeignKey(Region, related_name='data_centers', on_delete=models.CASCADE)
+
+
+class World(models.Model):
+	name = models.TextField()
+
+	# Relationships
+	data_center = models.ForeignKey(DataCenter, related_name='worlds', on_delete=models.CASCADE)
+
+class WorldItemFact(models.Model):
+	sold_mean      = models.FloatField()
+	sold_median    = models.FloatField()
+	sold_avg       = models.FloatField()
+	sold_high      = models.IntegerField()
+	sold_low       = models.IntegerField()
+	sold_count     = models.IntegerField()
+
+	sellers_count  = models.IntegerField()
+
+	list_mean   = models.FloatField()
+	list_median = models.FloatField()
+	list_avg    = models.FloatField()
+	list_high   = models.IntegerField()
+	list_low    = models.IntegerField()
+	list_count  = models.IntegerField()
+
+	hq = models.BooleanField(default=False)
+
+	calculated_at = models.DateTimeField()
+
+class RunTime(models.Model):
+	""" Tracking process runtimes.
+	"""
+	process_name = models.TextField()
+	process_caller = models.TextField()
+	started_at = models.DateTimeField()
+	ended_at = models.DateTimeField(null=True)
+	run_time = models.TextField(null=True)
+
+
 class Sale(models.Model):
 	""" A sold market board listing.
 	"""
@@ -163,6 +220,7 @@ class Sale(models.Model):
 	quantity       = models.IntegerField()
 	buyer_name     = models.TextField()
 	sold_at        = models.DateTimeField()
+	hq             = models.BooleanField(default=False)
 
 	# Relationships
 	item = models.ForeignKey(Item, related_name='sales', on_delete=models.CASCADE)
@@ -183,3 +241,4 @@ class Sale(models.Model):
 			'buyer_name': self.buyer_name,
 			'sold_at': self.sold_at
 		}
+

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<p>Results {{items|length}}</p>
+
+{% for item in items %}
+	<a href="{% url 'item' item.guid %}">{{item}}</a><br/>
+{% endfor %}
+
+{% endblock content %}
