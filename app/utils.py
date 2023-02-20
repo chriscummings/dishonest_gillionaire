@@ -2,6 +2,28 @@ import requests
 import time
 import json
 from app.forms import SearchBarForm
+import inspect
+from app.models import *
+from datetime import datetime
+
+
+def captute_runtime(func):
+	def wrapper(*args, **kwargs):
+		runtime = RunTime()
+		runtime.process_name = func.__name__
+		runtime.process_caller = inspect.stack()[1][3] #?
+		runtime.started_at = datetime.now()
+		runtime.save()		
+
+		func(*args, **kwargs)
+
+		runtime.ended_at = datetime.now()
+		runtime.run_time = runtime.ended_at - runtime.started_at
+		runtime.save()
+		print(runtime.run_time)
+
+	return wrapper
+
 
 
 

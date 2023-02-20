@@ -22,8 +22,26 @@ def item_index(request):
 def item_show(request, item_guid):
 	item = Item.objects.get(guid=item_guid)
 
+	facts = {}
+	x = []
+
+	region = Region.objects.last()
+	for datacenter in region.data_centers.all():
+		for world in datacenter.worlds.all():
+			if world.name not in facts.keys():
+
+				fact = WorldItemFact.objects.filter(item_id=item.id, world_id=world.id).last()
+				facts[world.name] = fact
+
+
+			if world.name == 'Malboro':
+				x = WorldItemFact.objects.filter(item_id=item.id, world_id=world.id)
+
+
 	context = {
-		'item_summary':item.summary()
+		'facts': facts,
+		'item_summary':item.summary(),
+		'x':x
 	}
 
 	return render(request, 'item_show.html', context)

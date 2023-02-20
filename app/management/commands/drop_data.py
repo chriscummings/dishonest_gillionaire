@@ -13,3 +13,12 @@ class Command(BaseCommand):
 		Ingredient.objects.all().delete()
 		Recipe.objects.all().delete()
 		Item.objects.all().delete()
+		# region, dc, world?
+
+		WorldItemFact.objects.all().delete()
+
+
+
+
+
+

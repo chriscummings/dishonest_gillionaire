@@ -4,22 +4,32 @@ import pdb
 
 class Item(models.Model):
 	name                             = models.TextField()
-	display_name                     = models.TextField(null=True)
+	display_name                     = models.TextField()
 	icon                             = models.TextField()
 	guid                             = models.IntegerField() # Source/official item ID.
-	can_be_hq                        = models.BooleanField(default=True)
-	stack_size                       = models.IntegerField(null=True)
-	jobs                             = models.TextField(null=True)
+	can_be_hq                        = models.BooleanField(default=False)
+	stack_size                       = models.IntegerField()
+	jobs                             = models.TextField()
 	is_dyeable                       = models.BooleanField(default=False)
-	is_glamourous                    = models.BooleanField(default=False) #?
+	is_glamourous                    = models.BooleanField(default=False)
 	is_untradable                    = models.BooleanField(default=False)
+	is_marketable                    = models.BooleanField(default=False)
 	is_unique                        = models.BooleanField(default=False)
-	ui_category                      = models.TextField(null=True)
-	vendor_price                     = models.IntegerField(null=True)
+	game_ui_category                 = models.TextField()
+	vendor_price                     = models.IntegerField()
+	game_search_category             = models.TextField()
+	universalis_unresolved           = models.BooleanField(default=False)
+
 
 	northamerica_listings_updated_at = models.DateTimeField(null=True)
 	northamerica_sales_updated_at    = models.DateTimeField(null=True)
-	universalis_unresolved           = models.BooleanField(default=False)
+
+	market_updated_at = models.DateTimeField(null=True)
+	listsings_updated_at = models.DateTimeField(null=True)
+	sales_updated_at = models.DateTimeField(null=True)
+	facts_updated_at = models.DateTimeField(null=True)
+
+
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]
@@ -41,7 +51,6 @@ class Item(models.Model):
 		summary['name'] = self.name
 		summary['icon'] = self.icon
 		summary['guid'] = self.guid
-
 		summary['can_be_hq'] = self.can_be_hq
 		summary['stack_size'] = self.stack_size
 		summary['jobs'] = self.jobs
@@ -49,7 +58,7 @@ class Item(models.Model):
 		summary['is_glamourous'] = self.is_glamourous
 		summary['is_untradable'] = self.is_untradable
 		summary['is_unique'] = self.is_unique
-		summary['ui_category'] = self.ui_category
+		summary['game_ui_category'] = self.game_ui_category
 		summary['vendor_price'] = self.vendor_price
 
 		summary['sales'] = []
@@ -73,14 +82,15 @@ class Item(models.Model):
 
 class Recipe(models.Model):
 	name          = models.TextField()
-	icon          = models.TextField(null=True)
+	icon          = models.TextField()
 	guid          = models.IntegerField() # Source/official recipe ID.
 	result_amount = models.IntegerField()
-	profession    = models.TextField(null=True)
+	profession    = models.TextField()
+	level         = models.IntegerField()
 
 	# Relationships
 	item      = models.ForeignKey(Item, related_name="recipes", on_delete=models.CASCADE)
-	materials = models.ManyToManyField(Item, related_name="xxx", through="Ingredient")
+	materials = models.ManyToManyField(Item, through="Ingredient")
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]	
@@ -108,7 +118,7 @@ class Recipe(models.Model):
 class Ingredient(models.Model):
 	""" Many-to-many Recipe/Item through model. """
 
-	count  = models.IntegerField(null=True)
+	count  = models.IntegerField()
 
 	# Relationships
 	item   = models.ForeignKey(Item, related_name="ingredients", on_delete=models.CASCADE)
@@ -123,45 +133,7 @@ class Ingredient(models.Model):
 		item_summary["material_count"] = self.count
 
 		return item_summary
-
-
-class Listing(models.Model):
-	""" A market board listing.
-	"""
-	region         = models.TextField()
-	world          = models.TextField()
-	listing_guid   = models.TextField() # Source/official listing ID.
-	retainer_guid  = models.TextField() # Source/official retainer ID.
-	retainer_name  = models.TextField()
-	price_per_unit = models.IntegerField()
-	quantity       = models.IntegerField()
-	total          = models.IntegerField()
-	created_at     = models.DateTimeField(auto_now_add=True)
-	hq             = models.BooleanField(default=False)
-
-	# Relationships
-	item = models.ForeignKey(Item, related_name='listings', on_delete=models.CASCADE)
-
-	class Meta:
-		indexes = [models.Index(fields=['listing_guid'])]
-
-	def __str__(self):
-		return f'({self.id}) {self.price_per_unit}x{self.quantity} from {self.retainer_name}'
-
-	def summary(self):
-		return {
-			'id': self.id,
-			'region': self.region,
-			'world': self.world,
-			'guid': self.listing_guid,
-			'retainer_guid': self.retainer_guid,
-			'retainer_name': self.retainer_name,
-			'price_per_unit': self.price_per_unit,
-			'quantity': self.quantity,
-			'total': self.total,
-			'created_at': self.created_at
-		}
-
+		
 
 class Region(models.Model):
 	name = models.TextField()
@@ -180,26 +152,91 @@ class World(models.Model):
 	# Relationships
 	data_center = models.ForeignKey(DataCenter, related_name='worlds', on_delete=models.CASCADE)
 
+
+class Listing(models.Model):
+	""" A market board listing.
+	"""
+	listing_guid   = models.TextField() # Source/official listing ID.
+	retainer_guid  = models.TextField() # Source/official retainer ID.
+	retainer_name  = models.TextField()
+	price_per_unit = models.IntegerField()
+	quantity       = models.IntegerField()
+	total          = models.IntegerField()
+	created_at     = models.DateTimeField(auto_now_add=True)
+	hq             = models.BooleanField(default=False)
+	updated_at     = models.DateTimeField()
+
+	# Relationships
+	item = models.ForeignKey(Item, related_name='listings', on_delete=models.CASCADE)
+	world = models.ForeignKey(World, related_name='listings', on_delete=models.CASCADE)
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['listing_guid']),
+			models.Index(fields=['item_id']),
+			models.Index(fields=['created_at']),
+		]
+
+	def __str__(self):
+		return f'({self.id}) {self.price_per_unit}x{self.quantity} from {self.retainer_name}'
+
+	def summary(self):
+		return {
+			'id': self.id,
+			'world': self.world.name,
+			'guid': self.listing_guid,
+			'retainer_guid': self.retainer_guid,
+			'retainer_name': self.retainer_name,
+			'price_per_unit': self.price_per_unit,
+			'quantity': self.quantity,
+			'total': self.total,
+			'created_at': self.created_at
+		}
+
+
 class WorldItemFact(models.Model):
-	sold_mean      = models.FloatField()
-	sold_median    = models.FloatField()
-	sold_avg       = models.FloatField()
-	sold_high      = models.IntegerField()
-	sold_low       = models.IntegerField()
-	sold_count     = models.IntegerField()
+	nq_sold_mean      = models.FloatField(null=True)
+	nq_sold_median    = models.FloatField(null=True)
+	nq_sold_mode      = models.FloatField(null=True)
+	nq_sold_high      = models.IntegerField(null=True)
+	nq_sold_low       = models.IntegerField(null=True)
+	nq_sold_count     = models.IntegerField(null=True)
+	nq_sellers_count  = models.IntegerField(null=True)
+	nq_list_mean   = models.FloatField(null=True)
+	nq_list_median = models.FloatField(null=True)
+	nq_list_mode   = models.FloatField(null=True)
+	nq_list_high   = models.IntegerField(null=True)
+	nq_list_low    = models.IntegerField(null=True)
+	nq_list_count  = models.IntegerField(null=True)
 
-	sellers_count  = models.IntegerField()
+	hq_last_sold_value = models.IntegerField(null=True)
+	nq_last_sold_value = models.IntegerField(null=True)
 
-	list_mean   = models.FloatField()
-	list_median = models.FloatField()
-	list_avg    = models.FloatField()
-	list_high   = models.IntegerField()
-	list_low    = models.IntegerField()
-	list_count  = models.IntegerField()
+	hq_sold_mean      = models.FloatField(null=True)
+	hq_sold_median    = models.FloatField(null=True)
+	hq_sold_mode      = models.FloatField(null=True)
+	hq_sold_high      = models.IntegerField(null=True)
+	hq_sold_low       = models.IntegerField(null=True)
+	hq_sold_count     = models.IntegerField(null=True)
+	hq_sellers_count  = models.IntegerField(null=True)
+	hq_list_mean   = models.FloatField(null=True)
+	hq_list_median = models.FloatField(null=True)
+	hq_list_mode   = models.FloatField(null=True)
+	hq_list_high   = models.IntegerField(null=True)
+	hq_list_low    = models.IntegerField(null=True)
+	hq_list_count  = models.IntegerField(null=True)
 
-	hq = models.BooleanField(default=False)
+	calculated_at = models.DateTimeField(null=True)
 
-	calculated_at = models.DateTimeField()
+	# Relationships
+	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
+	world = models.ForeignKey(World, related_name='facts', on_delete=models.CASCADE)
+
+
+	def __str__(self):
+		return f'({self.id}) {self.nq_list_count} {self.hq_list_count} {self.hq_sold_count} {self.nq_sold_count}'
+
+
 
 class RunTime(models.Model):
 	""" Tracking process runtimes.
@@ -214,19 +251,25 @@ class RunTime(models.Model):
 class Sale(models.Model):
 	""" A sold market board listing.
 	"""
-	region         = models.TextField()
-	world          = models.TextField()
 	price_per_unit = models.IntegerField()
 	quantity       = models.IntegerField()
 	buyer_name     = models.TextField()
 	sold_at        = models.DateTimeField()
 	hq             = models.BooleanField(default=False)
+	updated_at     = models.DateTimeField()
+	created_at     = models.DateTimeField(auto_now_add=True)
 
 	# Relationships
 	item = models.ForeignKey(Item, related_name='sales', on_delete=models.CASCADE)
+	world = models.ForeignKey(World, related_name='sales', on_delete=models.CASCADE)
+
 
 	class Meta:
-		indexes = [models.Index(fields=['sold_at', 'buyer_name'])]
+		indexes = [
+			models.Index(fields=['sold_at', 'buyer_name']),
+			models.Index(fields=['item_id']),
+			models.Index(fields=['sold_at']),			
+		]
 
 	def __str__(self):
 		return f'({self.id}) {self.price_per_unit}x{self.quantity} by {self.buyer_name}'
@@ -234,8 +277,7 @@ class Sale(models.Model):
 	def summary(self):
 		return {
 			'id': self.id,		
-			'region': self.region,
-			'world': self.world,
+			'world': self.world.name,
 			'price_per_unit': self.price_per_unit,
 			'quantity': self.quantity,
 			'buyer_name': self.buyer_name,

@@ -4,6 +4,54 @@
 
 {% load custom_tags %}
 
+{{x}}
+{% for o in x %}
+	{{o}}
+{% endfor %}
+
+<table>
+	<thead>
+		<tr>
+			<th>World</th>
+			<th>NQ #<br/>Listed</th>
+			<th>NQ #<br/>Sold</th>
+			<th>NQ <br/>Listed <br/>Low</th>
+			<th>NQ <br/>Last <br/>Sold For</th>
+
+			<th>HQ #<br/>Listed</th>
+			<th>HQ #<br/>Sold</th>
+			<th>HQ <br/>Listed <br/>Low</th>
+			<th>HQ <br/>Last <br/>Sold For</th>
+
+		</tr>
+	</thead>
+	<tbody>
+		{% for world_name, fact in facts.items %}
+		<tr>
+			<td>{{world_name}}</td>
+			<td>{{fact.nq_list_count|default_if_none:''}}</td>
+			<td>{{fact.nq_sold_count|default_if_none:''}}</td>
+			<td>{{fact.nq_list_low|default_if_none:''}}</td>
+			<td>{{fact.nq_last_sold_value|default_if_none:''}}</td>
+
+
+			<td>{{fact.hq_list_count|default_if_none:''}}</td>
+			<td>{{fact.hq_sold_count|default_if_none:''}}</td>
+			<td>{{fact.hq_list_low|default_if_none:''}}</td>
+			<td>{{fact.hq_last_sold_value|default_if_none:''}}</td>
+
+
+		</tr>
+		{% endfor %}
+	</tbody>
+
+
+
+
+</table>
+
+
+
 <h1>{{item_summary.name}}</h1>
 {{item_summary.guid}}<br/>
 {{item_summary.icon}}<br/>

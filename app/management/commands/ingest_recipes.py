@@ -49,6 +49,7 @@ def ingest_recipes():
 			recipe.icon          = r['ItemResult']['Icon']
 			recipe.guid          = r['ID']
 			recipe.profession    = r['ClassJob']['Name']
+			recipe.level         = r['RecipeLevelTable']['ClassJobLevel']
 			recipe.item          = item
 			recipe.result_amount = r['AmountResult']
 			recipe.save()

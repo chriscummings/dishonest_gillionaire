@@ -8,61 +8,35 @@ from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor as PoolExecutor
 from ratelimit import limits, RateLimitException, sleep_and_retry
 
-from app.utils import fetch_json
+from app.utils import fetch_json, captute_runtime
 from app.models import *
 import logging
-import inspect
 
-
-def captute_runtime(func):
-	def wrapper(*args, **kwargs):
-		runtime = RunTime()
-		runtime.process_name = func.__name__
-		runtime.process_caller = inspect.stack()[1][3] #?
-		runtime.started_at = datetime.now()
-		runtime.save()		
-
-		func(*args, **kwargs)
-
-		runtime.ended_at = datetime.now()
-		runtime.run_time = runtime.ended_at - runtime.started_at
-		runtime.save()
-		print(runtime.run_time)
-
-	return wrapper
-
-
-
-
-#UNIVERSALIS_MAX_CALLS_PER_SECOND = 13 # 25 max
 
 class Universalis():
 	# FIXME: hard-coded north america
-	#API_ENDPOINT = "http://universalis.app/api/v2/North-America/"
-
 	API_ENDPOINT = "http://universalis.app/api/v2/"
-
-
 	UNIVERSALIS_MAX_CALLS_PER_SECOND = 13 # 25 max
 	UNIVERSALIS_MAX_CONNECTIONS = 6 # 8 max
-	LISTINGS_PER_API_CALL = 500 # Universalis no max.
-
+	LISTINGS_PER_API_CALL = 100 # Universalis no max.
 	ITEMS_PER_API_CALL = 100 # Universalis 100 max
 	HOURS_AGO_TO_UPDATE = 0
 	MAX_SALES_PER_ITEM = 20
 
-
 	def __init__(self):
 		self.logger = logging.getLogger(__name__)
 
+	def fetch_and_flag_market_updates(self):
+		api_resp = fetch_json(self.API_ENDPOINT+"extra/stats/recently-updated")
 
-
-
+		for item_id in api_resp['items']:
+			item = Item.objects.get(guid=item_id)
+			item.market_updated_at = datetime.now()
+			item.save()
 
 	@sleep_and_retry
 	@limits(calls=UNIVERSALIS_MAX_CALLS_PER_SECOND, period=1)
 	def fetch_and_process_item_sales(self, item_ids_querystring):
-
 		new_sale_count = 0
 
 		# FIXME: hard-coded north america
@@ -84,25 +58,27 @@ class Universalis():
 			new_sales = []
 
 			for s in sales_json:
-				sale = Sale.objects.filter(sold_at=datetime.utcfromtimestamp(s['timestamp']), buyer_name=s['buyerName'])
+				sale = Sale.objects.filter(sold_at=datetime.utcfromtimestamp(s['timestamp']), buyer_name=s['buyerName']).last()
 
 				# Ignore existing sales.
-				if sale: 
-					print("Ignoring existing sale")
+				if sale:
+					sale.updated_at = datetime.now()
+					sale.save()
 					continue
+
+				world = World.objects.get(name=s['worldName'])
 
 				sale                = Sale()
 				sale.item           = item
-				sale.region         = api_resp['items'][key]['regionName']
-				sale.world          = s['worldName']
 				sale.price_per_unit = s['pricePerUnit']
 				sale.quantity       = s['quantity']
 				sale.buyer_name     = s['buyerName']
 				sale.sold_at        = datetime.fromtimestamp(s['timestamp'], timezone.utc)
+				sale.world          = world
+				sale.updated_at = datetime.now()
 
 				if s['hq']:
 					sale.hq = True
-
 
 				new_sales.append(sale)
 
@@ -113,18 +89,22 @@ class Universalis():
 			item.northamerica_sales_updated_at = datetime.now(tz=timezone.utc)
 			item.save()
 
-		self.logger.info(f"Created {len(new_sales)} new Sales.")
-
+		self.logger.info(f"Created {new_sale_count} new Sales.")
 
 	@captute_runtime
-	def fetch_sales(self):
+	def fetch_sales(self, get_all=False):
 		start_time = datetime.now()
 
 		print("Building list..")
 
-		items = Item.objects.filter( 
-			Q(northamerica_sales_updated_at__lt=(datetime.now(tz=timezone.utc) - timedelta(hours = self.HOURS_AGO_TO_UPDATE))) | 
-			Q(northamerica_sales_updated_at__isnull=True), Q(universalis_unresolved=False) ).order_by('guid')
+		if get_all:
+			items = Item.objects.filter( 
+				Q(northamerica_sales_updated_at__lt=(datetime.now(tz=timezone.utc) - timedelta(hours = self.HOURS_AGO_TO_UPDATE))) | 
+				Q(northamerica_sales_updated_at__isnull=True), Q(universalis_unresolved=False), Q(is_marketable=True) ).order_by('guid')
+		else:
+			# FIXME: write query
+			items = None
+
 
 		paginator = Paginator(items, self.ITEMS_PER_API_CALL)
 
@@ -145,11 +125,7 @@ class Universalis():
 
 			item_query_strings.append(item_id_string)
 
-
 		self.logger.info("List complete. "+str(items.count())+" items to handle in "+str(len(item_query_strings))+" batches.")
-
-
-
 
 		if items.count() > 0:
 			with PoolExecutor(max_workers=self.UNIVERSALIS_MAX_CONNECTIONS) as executor:
@@ -158,13 +134,10 @@ class Universalis():
 
 		print(datetime.now() - start_time)
 
-
-
-
 	@sleep_and_retry
 	@limits(calls=UNIVERSALIS_MAX_CALLS_PER_SECOND, period=1)
 	def fetch_and_process_item_listings(self, item_ids_querystring):
-		api_resp = fetch_json(self.API_ENDPOINT+"North-America/"+item_ids_querystring+"?listings="+str(self.LISTINGS_PER_API_CALL))
+		api_resp = fetch_json(self.API_ENDPOINT+"North-America/"+item_ids_querystring+"?listings="+str(self.LISTINGS_PER_API_CALL)+"&noGst=1")
 
 		# Handle items unknown by Universalis..
 		for item_id in api_resp['unresolvedItems']:
@@ -185,24 +158,30 @@ class Universalis():
 			new_listings = []
 
 			for l in listings_json:
-				listing = Listing.objects.filter(listing_guid=l['listingID'])
+				listing = Listing.objects.filter(listing_guid=l['listingID']).last()
 
 				# Ignore existing listing.
-				if listing: continue
+				if listing: 
+					listing.updated_at = datetime.now()
+					listing.save()
+					continue
+
+				world = World.objects.get(name=l['worldName'])
 
 				listing                = Listing()
 				listing.item           = item
-				listing.region         = api_resp['regionName']
-				listing.world          = l['worldName']
 				listing.listing_guid   = l['listingID']
 				listing.retainer_guid  = l['retainerID']
 				listing.retainer_name  = l['retainerName']
 				listing.price_per_unit = l['pricePerUnit']
 				listing.quantity       = l['quantity']
 				listing.total          = l['total']
+				listing.world          = world
 
 				if l['hq']:
 					listing.hq = True
+
+				listing.updated_at = datetime.now()
 
 				new_listings.append(listing)
 
@@ -210,15 +189,22 @@ class Universalis():
 			item.northamerica_listings_updated_at = datetime.now(tz=timezone.utc)
 			item.save()
 
+	# TODO: add "all" argument (bool) and conditionally change the items queryset.
 	@captute_runtime
-	def fetch_listings(self):
+	def fetch_listings(self, get_all=False):
 		start_time = datetime.now()
 
 		print("Building list..")
 
-		items = Item.objects.filter( 
-			Q(northamerica_listings_updated_at__lt=(datetime.now(tz=timezone.utc) - timedelta(hours = 0))) | 
-			Q(northamerica_listings_updated_at__isnull=True), Q(universalis_unresolved=False) ).order_by('guid')
+		# All or those with "updated flag"
+
+		if get_all:
+			items = Item.objects.filter( 
+				Q(northamerica_listings_updated_at__lt=(datetime.now(tz=timezone.utc) - timedelta(hours = self.HOURS_AGO_TO_UPDATE))) | 
+				Q(northamerica_listings_updated_at__isnull=True), Q(universalis_unresolved=False), Q(is_marketable=True) ).order_by('guid')
+		else:
+			# FIXME: write query
+			items = None
 
 		# Universalis API has a 100 items limit.
 		paginator = Paginator(items, 100)
@@ -250,18 +236,6 @@ class Universalis():
 		print(datetime.now() - start_time)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 class XivApi():
 	# Items
 	ITEM_ENDPOINT = 'https://xivapi.com/item'
@@ -280,12 +254,6 @@ class XivApi():
 	# TODO: thread api requests, XIVAPI limit is 20/req/sec.
 	@captute_runtime
 	def fetch_item_list(self):
-		# runtime = RunTime()
-		# runtime.process_name = inspect.stack()[0][3]
-		# runtime.process_caller = inspect.stack()[1][3]
-		# runtime.started_at = datetime.now()
-		# runtime.save()
-
 		endpoint = f"{self.ITEM_ENDPOINT}?private_key={self.api_key}"
 
 		items = []
@@ -308,19 +276,8 @@ class XivApi():
 		with open(self.ITEM_LIST_OUTPUT_FILE, "w") as json_file:
 			json_file.write(json.dumps(items, indent=4))
 
-
-		# runtime.ended_at = datetime.now()
-		# runtime.run_time = runtime.ended_at - runtime.started_at
-		# runtime.save()
-		# print(runtime.run_time)
-
-
-
-
 	@captute_runtime
 	def fetch_item_details(self):
-		start_time = datetime.now()
-
 		print("Loading file...")
 		item_list_json = json.load(open(self.ITEM_LIST_OUTPUT_FILE))
 
@@ -339,12 +296,8 @@ class XivApi():
 		with open(self.ITEM_DETAILS_OUTPUT_FILE, "w") as json_file:
 			json_file.write(json.dumps(items, indent=4))
 
-		print(datetime.now() - start_time)
-
 	@captute_runtime
 	def fetch_recipe_list(self):
-		start_time = datetime.now()
-
 		recipes = []
 
 		endpoint = f"{self.RECIPE_ENDPOINT}?private_key={self.api_key}"
@@ -367,11 +320,8 @@ class XivApi():
 		with open(self.RECIPE_LIST_OUTPUT_FILE, "w") as json_file:
 			json_file.write(json.dumps(recipes, indent=4))
 
-		print(datetime.now() - start_time)
-
 	@captute_runtime
 	def fetch_recipe_details(self):
-		start_time = datetime.now()
 
 		print("Loading file...")
 		recipe_list_json = json.load(open(self.RECIPE_LIST_OUTPUT_FILE))
@@ -390,12 +340,8 @@ class XivApi():
 		with open(self.RECIPE_DETAILS_OUTPUT_FILE, "w") as json_file:
 			json_file.write(json.dumps(recipes, indent=4))
 
-		print(datetime.now() - start_time)
-
 	@captute_runtime
 	def ingest_item_details(self, input_file=None):
-		start_time = datetime.now()
-
 		if not input_file:
 			input_file = self.ITEM_DETAILS_OUTPUT_FILE
 
@@ -427,15 +373,18 @@ class XivApi():
 			if i['ItemUICategory']:
 				item.ui_category   = i['ItemUICategory']['Name']
 
+			if i['ItemSearchCategory']:
+				item.search_category = i['ItemSearchCategory']['Name']
+				item.is_marketable = True
+
 			item.is_dyeable    = True if i['CanBeHq'] == 1 else False
 			item.is_glamourous = True if i['CanBeHq'] == 1 else False
 			item.is_untradable = True if i['CanBeHq'] == 1 else False
 			item.is_unique     = True if i['CanBeHq'] == 1 else False
+
 			item.save()
 
 			print(item)
-
-		print(datetime.now() - start_time)
 
 	def _create_ingredient(self, recipe, item, count):
 		ingredient = Ingredient()
@@ -448,8 +397,6 @@ class XivApi():
 	def ingest_recipe_details(self, input_file=None):
 		if not input_file:
 			input_file = self.RECIPE_DETAILS_OUTPUT_FILE
-
-		start_time = datetime.now()
 
 		print("Loading file...")
 		recipe_json = json.load(open(input_file))
@@ -492,16 +439,5 @@ class XivApi():
 							item = Item.objects.get(guid=item_guid)
 							self._create_ingredient(recipe, item, count)
 						except Item.DoesNotExist as e:
-
 							print(e)
 							print(item_guid)
-							print("*********")
-
-						
-
-		print(datetime.now() - start_time)
-
-
-
-
-

@@ -9,7 +9,7 @@ from app.api_handling import *
 from app.utils import fetch_json
 import logging
 import time
-
+from app.facts_handling import *
 
 class Command(BaseCommand):
 	"""Required class for using manage.py to invoke tasks.
@@ -44,18 +44,20 @@ class Command(BaseCommand):
 		# process(item.summary())
 
 #--
-
+		min_sleep = 60
 		handler = Universalis()
 		while True:
-			logger.info('Attempting to connect to API')
+
 			handler.fetch_sales()
 			print("Going to sleep...")
-			time.sleep(60 * 20)
+
 			handler.fetch_listings()
 			print("Going to sleep...")
-			time.sleep(60 * 20)
 
+			compute_item_facts()
+			print("Going to sleep...")
 
+			time.sleep(60 * min_sleep)
 
 
 
