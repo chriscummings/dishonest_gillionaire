@@ -5,3 +5,7 @@ data/*.json
 
 *.env
 *.log
+
+.venv
+.git
+.gitignore
