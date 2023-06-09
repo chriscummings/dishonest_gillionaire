@@ -1,13 +1,14 @@
 import json
+import os
+from glob import glob
+import shutil
 from datetime import datetime, timedelta
-
 from django.conf import settings
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.utils import timezone
 from concurrent.futures import ThreadPoolExecutor as PoolExecutor
 from ratelimit import limits, RateLimitException, sleep_and_retry
-
 from app.utils import fetch_json, captute_runtime
 from app.models import *
 import logging
@@ -237,108 +238,182 @@ class Universalis():
 
 
 class XivApi():
+	MAX_CONNECTIONS = 4 # Guess, unknown limit
+	XIPAPI_MAX_CALLS_PER_SECOND = 15
+
 	# Items
 	ITEM_ENDPOINT = 'https://xivapi.com/item'
-	ITEM_LIST_OUTPUT_FILE = 'data/xivapi_item_list.json'
-	ITEM_DETAILS_OUTPUT_FILE = 'data/xivapi_items.json'
+	ITEM_LIST_TEMP_DIR = 'data/items'
+	ITEM_DETAILS_TEMP_DIR = 'data/item_details'
 
 	# Recipes
 	RECIPE_ENDPOINT = 'https://xivapi.com/recipe'
-	RECIPE_LIST_OUTPUT_FILE = 'data/xivapi_recipe_list.json'
-	RECIPE_DETAILS_OUTPUT_FILE = 'data/xivapi_recipes.json'
+	RECIPE_LIST_TEMP_DIR = 'data/recipes'
+	RECIPE_DETAILS_TEMP_DIR = 'data/recipe_details'
 
 	def __init__(self):
 		self.api_key =  getattr(settings, 'XIVAPI_KEY', None)
 		self.logger = logging.getLogger(__name__)
 
-	# TODO: thread api requests, XIVAPI limit is 20/req/sec.
-	@captute_runtime
-	def fetch_item_list(self):
+	@sleep_and_retry
+	@limits(calls=XIPAPI_MAX_CALLS_PER_SECOND, period=1)
+	def _fetch_and_store_items_page(self, page_number):
 		endpoint = f"{self.ITEM_ENDPOINT}?private_key={self.api_key}"
 
-		items = []
+		api_resp = fetch_json(endpoint+"&page="+str(page_number))
 
-		# Get initial page.
+		results = api_resp["Results"]
+
+		with open(os.path.join(self.ITEM_LIST_TEMP_DIR, f"{page_number}.json"), "w") as json_file:
+			json_file.write(json.dumps(results, indent=4))
+
+	@captute_runtime
+	def fetch_item_list(self, start_page=1):
+		# Clean out old data
+		if os.path.exists(self.ITEM_LIST_TEMP_DIR):
+			shutil.rmtree(self.ITEM_LIST_TEMP_DIR)
+
+		# Create temp dir for JSON
+		os.makedirs(self.ITEM_LIST_TEMP_DIR)
+
+		# Get initial page to determine total page count.
+		endpoint = f"{self.ITEM_ENDPOINT}?private_key={self.api_key}"
+		api_resp = fetch_json(endpoint)
+		last_page = api_resp["Pagination"]["PageTotal"]
+
+		with PoolExecutor(max_workers=self.MAX_CONNECTIONS) as executor:
+			for _ in executor.map(self._fetch_and_store_items_page, range(start_page, last_page)):
+				pass 
+
+	@sleep_and_retry
+	@limits(calls=XIPAPI_MAX_CALLS_PER_SECOND, period=1)
+	def _fetch_and_store_item_details_page(self, id):
+		endpoint = f"{self.ITEM_ENDPOINT}/{id}?private_key={self.api_key}"
+
 		api_resp = fetch_json(endpoint)
 
-		for result in api_resp["Results"]:
-			items.append(result)
-
-		# Get subsequent pages.
-		next_page = api_resp["Pagination"]["PageNext"]
-		while next_page:
-			print("Handling page: "+str(next_page)+"/"+str(api_resp["Pagination"]["PageTotal"]))
-			api_resp = fetch_json(endpoint+"&page="+str(next_page))
-			next_page = api_resp["Pagination"]["PageNext"]
-			for result in api_resp["Results"]:
-				items.append(result)
-
-		with open(self.ITEM_LIST_OUTPUT_FILE, "w") as json_file:
-			json_file.write(json.dumps(items, indent=4))
+		with open(os.path.join(self.ITEM_DETAILS_TEMP_DIR, f"{id}.json"), "w") as json_file:
+			json_file.write(json.dumps(api_resp, indent=4))
 
 	@captute_runtime
-	def fetch_item_details(self):
-		print("Loading file...")
-		item_list_json = json.load(open(self.ITEM_LIST_OUTPUT_FILE))
+	def fetch_item_details(self, recovery_mode=False):
+		if not recovery_mode:
+			# Clean out old data
+			if os.path.exists(self.ITEM_DETAILS_TEMP_DIR):
+				shutil.rmtree(self.ITEM_DETAILS_TEMP_DIR)
 
-		items = []
+			# Create temp dir for JSON
+			os.makedirs(self.ITEM_DETAILS_TEMP_DIR)
 
-		print("Parsing file...")
-		for i in item_list_json:
-			guid = i['ID']
-			print(guid)
-			endpoint = f"{self.ITEM_ENDPOINT}/{i['ID']}?private_key={self.api_key}"
+		# Grab all item IDs from every JSON file.
+		ids = []
+		item_json_files = glob(f"{self.ITEM_LIST_TEMP_DIR}/*.json")
+		for json_file in item_json_files:
+			f = open(json_file)
+			data = json.load(f)
+			ids += map(lambda item_json: item_json["ID"], data)
 
-			api_resp = fetch_json(endpoint)
+		# Remove None items
+		ids = [x for x in ids if x is not None]
 
-			items.append(api_resp)
+		if recovery_mode:
+			existing_ids = []
+			item_details_json_files = glob(f"{self.ITEM_DETAILS_TEMP_DIR}/*.json")
+			for json_file in item_details_json_files:
+				f = open(json_file)
+				data = json.load(f)
+				existing_ids.append(data["ID"])
 
-		with open(self.ITEM_DETAILS_OUTPUT_FILE, "w") as json_file:
-			json_file.write(json.dumps(items, indent=4))
+			for id in existing_ids:
+				if id in ids:
+					ids.remove(id)
 
-	@captute_runtime
-	def fetch_recipe_list(self):
-		recipes = []
+		with PoolExecutor(max_workers=self.MAX_CONNECTIONS) as executor:
+			for _ in executor.map(self._fetch_and_store_item_details_page, ids):
+				pass 
 
+	@sleep_and_retry
+	@limits(calls=XIPAPI_MAX_CALLS_PER_SECOND, period=1)
+	def _fetch_and_store_recipes_page(self, page_number): ##############
 		endpoint = f"{self.RECIPE_ENDPOINT}?private_key={self.api_key}"
 
-		# Get initial page.
+		api_resp = fetch_json(endpoint+"&page="+str(page_number))
+		results = api_resp["Results"]
+
+		with open(os.path.join(self.RECIPE_LIST_TEMP_DIR, f"{page_number}.json"), "w") as json_file:
+			json_file.write(json.dumps(results, indent=4))
+
+	@sleep_and_retry
+	@limits(calls=XIPAPI_MAX_CALLS_PER_SECOND, period=1)
+	def _fetch_and_store_recipe_details_page(self, id):
+		endpoint = f"{self.RECIPE_ENDPOINT}/{id}?private_key={self.api_key}"
+
 		api_resp = fetch_json(endpoint)
 
-		for result in api_resp["Results"]:
-			recipes.append(result)
-
-		# Get subsequent pages.
-		next_page = api_resp["Pagination"]["PageNext"]
-		while next_page:
-			print("Handling page: "+str(next_page)+"/"+str(api_resp["Pagination"]["PageTotal"]))
-			api_resp = fetch_json(endpoint+"&page="+str(next_page))
-			next_page = api_resp["Pagination"]["PageNext"]
-			for result in api_resp["Results"]:
-				recipes.append(result)
-
-		with open(self.RECIPE_LIST_OUTPUT_FILE, "w") as json_file:
-			json_file.write(json.dumps(recipes, indent=4))
+		with open(os.path.join(self.RECIPE_DETAILS_TEMP_DIR, f"{id}.json"), "w") as json_file:
+			json_file.write(json.dumps(api_resp, indent=4))
 
 	@captute_runtime
-	def fetch_recipe_details(self):
+	def fetch_recipe_list(self, start_page=1):
+		# Clean out old data
+		if os.path.exists(self.RECIPE_LIST_TEMP_DIR):
+			shutil.rmtree(self.RECIPE_LIST_TEMP_DIR)
 
-		print("Loading file...")
-		recipe_list_json = json.load(open(self.RECIPE_LIST_OUTPUT_FILE))
+		# Create temp dir for JSON
+		os.makedirs(self.RECIPE_LIST_TEMP_DIR)
 
-		print("Parsing file...")
-		recipes = []
-		for r in recipe_list_json:
-			guid = r['ID']
+		# Get initial page to determine total page count.
+		endpoint = f"{self.RECIPE_ENDPOINT}?private_key={self.api_key}"
+		api_resp = fetch_json(endpoint)
+		last_page = api_resp["Pagination"]["PageTotal"]
 
-			endpoint = f"{self.RECIPE_ENDPOINT}/{r['ID']}?private_key={self.api_key}"
+		with PoolExecutor(max_workers=self.MAX_CONNECTIONS) as executor:
+			for _ in executor.map(self._fetch_and_store_recipes_page, range(start_page, last_page)):
+				pass 
 
-			api_resp = fetch_json(endpoint)
-			print(guid)
-			recipes.append(api_resp)
+		##########
 
-		with open(self.RECIPE_DETAILS_OUTPUT_FILE, "w") as json_file:
-			json_file.write(json.dumps(recipes, indent=4))
+
+		# with open(self.RECIPE_LIST_OUTPUT_FILE, "w") as json_file:
+		# 	json_file.write(json.dumps(recipes, indent=4))
+
+	@captute_runtime
+	def fetch_recipe_details(self, recovery_mode=False):
+
+		if not recovery_mode:
+			# Clean out old data
+			if os.path.exists(self.RECIPE_DETAILS_TEMP_DIR):
+				shutil.rmtree(self.RECIPE_DETAILS_TEMP_DIR)
+
+			# Create temp dir for JSON
+			os.makedirs(self.RECIPE_DETAILS_TEMP_DIR)
+
+		# Grab all item IDs from every JSON file.
+		ids = []
+		item_json_files = glob(f"{self.RECIPE_LIST_TEMP_DIR}/*.json")
+		for json_file in item_json_files:
+			f = open(json_file)
+			data = json.load(f)
+			ids += map(lambda recipe_json: recipe_json["ID"], data)
+		
+		# Remove None items
+		ids = [x for x in ids if x is not None]
+
+		if recovery_mode:
+			existing_ids = []
+			recipe_details_json_files = glob(f"{self.RECIPE_DETAILS_TEMP_DIR}/*.json")
+			for json_file in recipe_details_json_files:
+				f = open(json_file)
+				data = json.load(f)
+				existing_ids.append(data["ID"])
+
+			for id in existing_ids:
+				if id in ids:
+					ids.remove(id)
+
+		with PoolExecutor(max_workers=self.MAX_CONNECTIONS) as executor:
+			for _ in executor.map(self._fetch_and_store_recipe_details_page, ids):
+				pass 
 
 	@captute_runtime
 	def ingest_item_details(self, input_file=None):
