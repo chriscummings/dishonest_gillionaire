@@ -1,6 +1,26 @@
 """ Parse XIVAPI recipe JSON and create recipes and relationships. 
 """
 
+
+from django.core.management.base import BaseCommand, CommandError
+from app.api_handling import XivApi
+
+
+class Command(BaseCommand):
+	"""Required class for using manage.py to invoke tasks.
+	"""
+	help = ''
+
+	def handle(self, *args, **options):
+		handler = XivApi()
+		handler.ingest_recipe_details()
+
+
+
+
+
+
+"""
 # TODO: track task completion time.
 
 import json
@@ -72,9 +92,9 @@ def ingest_recipes():
 
 
 class Command(BaseCommand):
-	"""Required class for using manage.py to invoke tasks.
-	"""
+
 	help = ''
 
 	def handle(self, *args, **options):
 		ingest_recipes()
+"""

@@ -66,6 +66,7 @@ def seed_region_dc_world():
 
 		try:
 			region = Region.objects.get(name=region_name)
+			print(region.id)
 		except Region.DoesNotExist as error:
 			region = Region()
 			region.name = region_name

@@ -1,3 +1,14 @@
+
+
+docker-compose exec web python manage.py seed_data
+docker-compose exec web python manage.py fetch_xivapi_item_list
+docker-compose exec web python manage.py fetch_xivapi_item_details
+docker-compose exec web python manage.py ingest_items
+docker-compose exec web python manage.py fetch_xivapi_recipe_list
+docker-compose exec web python manage.py fetch_xivapi_recipes
+
+
+--
 poetry init
 poetry add Django
 poetry shell

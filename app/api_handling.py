@@ -416,16 +416,12 @@ class XivApi():
 				pass 
 
 	@captute_runtime
-	def ingest_item_details(self, input_file=None):
-		if not input_file:
-			input_file = self.ITEM_DETAILS_OUTPUT_FILE
+	def ingest_item_details(self):
+		json_files = glob(f"{self.ITEM_DETAILS_TEMP_DIR}/*.json")
+		for f in json_files:
+			i = json.load(open(f))
 
-		print("Loading file...")
-		item_json = json.load(open(input_file))
-
-		print("Parsing file...")
-		for i in item_json:
-
+			# Ignore bs items
 			if i['Name'] == '' or i['Name'] == 'Other':
 				continue
 
@@ -469,15 +465,18 @@ class XivApi():
 		ingredient.save()
 
 	@captute_runtime
-	def ingest_recipe_details(self, input_file=None):
-		if not input_file:
-			input_file = self.RECIPE_DETAILS_OUTPUT_FILE
+	def ingest_recipe_details(self):
 
-		print("Loading file...")
-		recipe_json = json.load(open(input_file))
 
-		print("Parsing file...")
-		for r in recipe_json:
+
+#######################################
+		json_files = glob(f"{self.RECIPE_DETAILS_TEMP_DIR}/*.json")
+		for f in json_files:
+			r = json.load(open(f))
+
+
+
+
 			try:
 				recipe = Recipe.objects.get(guid=r['ID'])
 			except Recipe.DoesNotExist as e:
@@ -497,6 +496,7 @@ class XivApi():
 				recipe.name          = r['Name']
 				recipe.icon          = r['ItemResult']['Icon']
 				recipe.guid          = r['ID']
+				recipe.level 		 = r['ClassJob']['StartingLevel']
 				recipe.profession    = r['ClassJob']['Name']
 				recipe.item          = item
 				recipe.result_amount = r['AmountResult']
