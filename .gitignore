@@ -1,5 +1,8 @@
 *.sqlite3
-data/*.json
+data/*
+
+
+
 *.pyc
 
 
