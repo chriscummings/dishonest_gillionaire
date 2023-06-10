@@ -22,7 +22,7 @@ class Universalis():
 	LISTINGS_PER_API_CALL = 100 # Universalis no max.
 	ITEMS_PER_API_CALL = 100 # Universalis 100 max
 	HOURS_AGO_TO_UPDATE = 0
-	MAX_SALES_PER_ITEM = 20
+	MAX_SALES_PER_ITEM = 20 # How many historic sales to ask for
 
 	def __init__(self):
 		self.logger = logging.getLogger(__name__)
@@ -238,8 +238,8 @@ class Universalis():
 
 
 class XivApi():
-	MAX_CONNECTIONS = 4 # Guess, unknown limit
-	XIPAPI_MAX_CALLS_PER_SECOND = 15
+	MAX_CONNECTIONS = 4 # Actual limit unknown
+	XIPAPI_MAX_CALLS_PER_SECOND = 15 # 20 max
 
 	# Items
 	ITEM_ENDPOINT = 'https://xivapi.com/item'
@@ -334,7 +334,7 @@ class XivApi():
 
 	@sleep_and_retry
 	@limits(calls=XIPAPI_MAX_CALLS_PER_SECOND, period=1)
-	def _fetch_and_store_recipes_page(self, page_number): ##############
+	def _fetch_and_store_recipes_page(self, page_number):
 		endpoint = f"{self.RECIPE_ENDPOINT}?private_key={self.api_key}"
 
 		api_resp = fetch_json(endpoint+"&page="+str(page_number))
@@ -466,16 +466,9 @@ class XivApi():
 
 	@captute_runtime
 	def ingest_recipe_details(self):
-
-
-
-#######################################
 		json_files = glob(f"{self.RECIPE_DETAILS_TEMP_DIR}/*.json")
 		for f in json_files:
 			r = json.load(open(f))
-
-
-
 
 			try:
 				recipe = Recipe.objects.get(guid=r['ID'])

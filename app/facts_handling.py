@@ -3,7 +3,8 @@ from app.utils import captute_runtime
 from datetime import datetime, timedelta
 import statistics
 from pprint import pprint as p
-HOURS_AGO_TO_UPDATE = 2
+
+HOURS_AGO_TO_UPDATE = 24
 
 def _to_world_dict(collection):
 	print(f"collection:{len(collection)}")
@@ -186,6 +187,7 @@ def compute_item_facts():
 
 			fact.item = item
 			fact.world = world
+			
 			fact.save()
 			print(fact)
 

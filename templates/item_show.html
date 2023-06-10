@@ -9,7 +9,7 @@
 	{{o}}
 {% endfor %}
 
-<table>
+<table id="facts" class="display compact">
 	<thead>
 		<tr>
 			<th>World</th>
@@ -67,9 +67,6 @@ Category: {{item_summary.ui_category}}<br/>
 
 Vendor Price: {{item_summary.vendor_price}}<br/>
 
-
-
-
 {{item_summary.northamerica_listings_updated_at}}
 {{item_summary.northamerica_sales_updated_at}}
 {{item_summary.universalis_unresolved}}
@@ -97,5 +94,54 @@ Vendor Price: {{item_summary.vendor_price}}<br/>
 {% autoescape off %}
 {% render_recipes item_summary %}
 {% endautoescape %}
+
+<script>
+	$(document).ready(function () {
+		$('#facts').DataTable({
+			"paging": false,
+			columns: [
+            	{
+                	data: 'a',
+					render: function (data, type, row, meta) {
+						let color = 'green'
+						
+						if(data == 'Malboro'){
+							color='red'
+						}
+						
+						return '<span style="color:' + color + '">' + data + '</span>';
+					},
+            	},
+            	{
+                	data: 'b'
+            	},	
+            	{
+                	data: 'c'
+            	},
+            	{
+                	data: 'd'
+            	},	
+            	{
+                	data: 'e'
+            	},
+            	{
+                	data: 'f'
+            	},	
+            	{
+                	data: 'g'
+            	},	
+            	{
+                	data: 'h'
+            	},
+            	{
+                	data: 'i'
+            	},
+			],
+			rowGroup: {
+       			dataSrc: 'group'
+   			}
+		});
+	});
+</script>
 
 {% endblock content %}

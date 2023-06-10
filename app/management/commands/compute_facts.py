@@ -1,8 +1,5 @@
-""" Fetches market board item listings from Universalis API. 
-"""
-
 from django.core.management.base import BaseCommand, CommandError
-from app.api_handling import Universalis
+from app.facts_handling import compute_item_facts
 
 
 class Command(BaseCommand):
@@ -11,5 +8,4 @@ class Command(BaseCommand):
 	help = ''
 
 	def handle(self, *args, **options):
-		handler = Universalis()
-		handler.fetch_listings(get_all=True)
+		compute_item_facts()

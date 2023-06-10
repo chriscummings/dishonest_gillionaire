@@ -1,3 +1,4 @@
+{% load static %}
 <header>
 	<style>
 		@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
@@ -20,14 +21,17 @@
 		td {
 			border:1px solid #444;
 		}
-
-
-
-
 	</style>
+	<!-- DataTables -->
+	<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+	<link href="{% static 'css/datatables.css' %}" rel="stylesheet">
+	<script src="{% static 'js/datatables.min.js' %}"></script>
+	<!-- DataTables rowGroup extension -->
+	<link href="{% static 'css/rowGroup.dataTables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'js/dataTables.rowGroup.min.js' %}"></script>
+
+
 </header>
-
 {% include '_search_bar.html' %}
-
 {% block content %}
 {% endblock content %}

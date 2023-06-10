@@ -4,9 +4,14 @@ docker-compose exec web python manage.py seed_data
 docker-compose exec web python manage.py fetch_xivapi_item_list
 docker-compose exec web python manage.py fetch_xivapi_item_details
 docker-compose exec web python manage.py ingest_items
+
 docker-compose exec web python manage.py fetch_xivapi_recipe_list
 docker-compose exec web python manage.py fetch_xivapi_recipes
+docker-compose exec web python manage.py ingest_recipes
 
+docker-compose exec web python manage.py update_sales
+docker-compose exec web python manage.py update_listings
+docker-compose exec web python manage.py compute_facts
 
 --
 poetry init

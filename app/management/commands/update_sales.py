@@ -120,4 +120,4 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		handler = Universalis()
-		handler.fetch_sales()
+		handler.fetch_sales(get_all=True)

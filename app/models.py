@@ -44,7 +44,7 @@ class Item(models.Model):
 		return f'({self.guid}) {self.name}'
 
 	# the short argument prevents recursion from related models.
-	def summary(self, sale_limit=3, listing_limit=3, short=False):
+	def summary(self, sale_limit=6, listing_limit=3, short=False):
 		summary = {}
 		summary['klass'] = 'item',
 		summary['id'] = self.id,
@@ -60,6 +60,8 @@ class Item(models.Model):
 		summary['is_unique'] = self.is_unique
 		summary['game_ui_category'] = self.game_ui_category
 		summary['vendor_price'] = self.vendor_price
+
+		# TODO: get best price, create key either way
 
 		summary['sales'] = []
 		if not short:
@@ -231,6 +233,7 @@ class WorldItemFact(models.Model):
 	# Relationships
 	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
 	world = models.ForeignKey(World, related_name='facts', on_delete=models.CASCADE)
+
 
 
 	def __str__(self):
