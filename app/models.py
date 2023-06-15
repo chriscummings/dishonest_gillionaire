@@ -5,6 +5,8 @@ import pdb
 class Item(models.Model):
 	name                             = models.TextField()
 	display_name                     = models.TextField()
+	item_level                            = models.IntegerField()
+	equip_level                      = models.IntegerField()
 	icon                             = models.TextField()
 	guid                             = models.IntegerField() # Source/official item ID.
 	can_be_hq                        = models.BooleanField(default=False)
@@ -105,6 +107,7 @@ class Recipe(models.Model):
 			'name': self.name,
 			'icon': self.icon,
 			'guid': self.guid,
+			'level': self.level,
 			'profession': self.profession,
 			'result_amount': self.result_amount,
 			'ingredients': []
@@ -171,6 +174,7 @@ class Listing(models.Model):
 	# Relationships
 	item = models.ForeignKey(Item, related_name='listings', on_delete=models.CASCADE)
 	world = models.ForeignKey(World, related_name='listings', on_delete=models.CASCADE)
+	datacenter = models.ForeignKey(DataCenter, related_name='listings', on_delete=models.CASCADE)
 
 	class Meta:
 		indexes = [
@@ -194,6 +198,68 @@ class Listing(models.Model):
 			'total': self.total,
 			'created_at': self.created_at
 		}
+"""
+
+class PurchasePricing(models.Model):
+	home = models.ForeignKey(World, related_name='pricing', on_delete=models.CASCADE)
+	datacenter = models.ForeignKey(DataCenter, related_name='facts', on_delete=models.CASCADE)
+	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
+	region = models.ForeignKey(Region, related_name='pricing', on_delete=models.CASCADE)
+
+	# Home sales
+	home_nq_sold_mean      = models.FloatField(null=True)
+	home_nq_sold_median    = models.FloatField(null=True)
+	home_nq_sold_mode      = models.FloatField(null=True)
+	home_nq_sold_high      = models.IntegerField(null=True)
+	home_nq_sold_low       = models.IntegerField(null=True)
+	home_nq_sold_count     = models.IntegerField(null=True)
+	home_nq_sellers_count  = models.IntegerField(null=True) #?
+	home_hq_sold_mean      = models.FloatField(null=True)
+	home_hq_sold_median    = models.FloatField(null=True)
+	home_hq_sold_mode      = models.FloatField(null=True)
+	home_hq_sold_high      = models.IntegerField(null=True)
+	home_hq_sold_low       = models.IntegerField(null=True)
+	home_hq_sold_count     = models.IntegerField(null=True)
+	home_hq_sellers_count  = models.IntegerField(null=True) #?
+
+	# Home availability
+	home_nq_list_mean   = models.FloatField(null=True)
+	home_nq_list_median = models.FloatField(null=True)
+	home_nq_list_mode   = models.FloatField(null=True)
+	home_nq_list_high   = models.IntegerField(null=True)
+	home_nq_list_low    = models.IntegerField(null=True)
+	home_nq_list_count  = models.IntegerField(null=True)
+	home_hq_list_mean   = models.FloatField(null=True)
+	home_hq_list_median = models.FloatField(null=True)
+	home_hq_list_mode   = models.FloatField(null=True)
+	home_hq_list_high   = models.IntegerField(null=True)
+	home_hq_list_low    = models.IntegerField(null=True)
+	home_hq_list_count  = models.IntegerField(null=True)
+
+
+	# Best availability
+	lowest_nq_listing_in_region_price = models.IntegerField(null=True)
+	lowest_nq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
+
+	lowest_nq_listing_in_datacenter_price = models.IntegerField(null=True)
+	lowest_nq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
+
+	lowest_hq_listing_in_region_price = models.IntegerField(null=True)
+	lowest_hq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
+
+	lowest_hq_listing_in_datacenter_price = models.IntegerField(null=True)
+	lowest_hq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
+
+
+	# Profit margins
+	# nq_margin_from_region = 
+	# nq_margin_from_datacenter = 
+	# nq_margin_from_home = 
+	# hq_margin_from_region = 
+	# hq_margin_from_datacenter = 
+	# hq_margin_from_home = 
+
+"""
 
 
 class WorldItemFact(models.Model):
@@ -229,12 +295,11 @@ class WorldItemFact(models.Model):
 	hq_list_count  = models.IntegerField(null=True)
 
 	calculated_at = models.DateTimeField(null=True)
-
+	
 	# Relationships
 	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
 	world = models.ForeignKey(World, related_name='facts', on_delete=models.CASCADE)
-
-
+	datacenter = models.ForeignKey(DataCenter, related_name='facts', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return f'({self.id}) {self.nq_list_count} {self.hq_list_count} {self.hq_sold_count} {self.nq_sold_count}'
@@ -265,6 +330,7 @@ class Sale(models.Model):
 	# Relationships
 	item = models.ForeignKey(Item, related_name='sales', on_delete=models.CASCADE)
 	world = models.ForeignKey(World, related_name='sales', on_delete=models.CASCADE)
+	datacenter = models.ForeignKey(DataCenter, related_name='sales', on_delete=models.CASCADE)
 
 
 	class Meta:

@@ -10,12 +10,13 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		Sale.objects.all().delete()
 		Listing.objects.all().delete()
+		WorldItemFact.objects.all().delete()
+
 		Ingredient.objects.all().delete()
 		Recipe.objects.all().delete()
 		Item.objects.all().delete()
 		# region, dc, world?
 
-		WorldItemFact.objects.all().delete()
 
 
 

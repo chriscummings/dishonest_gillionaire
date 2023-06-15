@@ -1,6 +1,7 @@
 
 
 docker-compose exec web python manage.py seed_data
+
 docker-compose exec web python manage.py fetch_xivapi_item_list
 docker-compose exec web python manage.py fetch_xivapi_item_details
 docker-compose exec web python manage.py ingest_items
@@ -12,6 +13,41 @@ docker-compose exec web python manage.py ingest_recipes
 docker-compose exec web python manage.py update_sales
 docker-compose exec web python manage.py update_listings
 docker-compose exec web python manage.py compute_facts
+--
+docker-compose exec web python manage.py ingest_items;docker-compose exec web python manage.py ingest_recipes
+ 
+docker-compose exec web python manage.py update_sales;docker-compose exec web python manage.py update_listings;docker-compose exec web python manage.py compute_facts
+
+
+
+
+---
+for item
+    price_by_world=[]
+
+    for world
+        get last fact where item&world match
+            price_by_world.append({name:world, price:lowest_listing_price})
+
+    filtered = filter(price!=None ,price_by_world) # remove blanks
+    sorted = sort(sort_by_price, filtered) # sort by lowest price
+
+    get best price in DataCenter
+    get best price in region
+
+###################
+BEST_PRICE_MODEL
+home_world_id
+item_id
+best nq price in data_center_price
+best nq price in data_center_world
+best nq price in region_price
+best nq price in region_world
+best hq price in data_center_price
+best hq price in data_center_world
+best hq price in region_price
+best hq price in region_world
+#####################
 
 --
 poetry init

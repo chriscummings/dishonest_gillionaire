@@ -4,96 +4,118 @@
 
 {% load custom_tags %}
 
-{{x}}
-{% for o in x %}
-	{{o}}
-{% endfor %}
-
-<table id="facts" class="display compact">
-	<thead>
-		<tr>
-			<th>World</th>
-			<th>NQ #<br/>Listed</th>
-			<th>NQ #<br/>Sold</th>
-			<th>NQ <br/>Listed <br/>Low</th>
-			<th>NQ <br/>Last <br/>Sold For</th>
-
-			<th>HQ #<br/>Listed</th>
-			<th>HQ #<br/>Sold</th>
-			<th>HQ <br/>Listed <br/>Low</th>
-			<th>HQ <br/>Last <br/>Sold For</th>
-
-		</tr>
-	</thead>
-	<tbody>
-		{% for world_name, fact in facts.items %}
-		<tr>
-			<td>{{world_name}}</td>
-			<td>{{fact.nq_list_count|default_if_none:''}}</td>
-			<td>{{fact.nq_sold_count|default_if_none:''}}</td>
-			<td>{{fact.nq_list_low|default_if_none:''}}</td>
-			<td>{{fact.nq_last_sold_value|default_if_none:''}}</td>
-
-
-			<td>{{fact.hq_list_count|default_if_none:''}}</td>
-			<td>{{fact.hq_sold_count|default_if_none:''}}</td>
-			<td>{{fact.hq_list_low|default_if_none:''}}</td>
-			<td>{{fact.hq_last_sold_value|default_if_none:''}}</td>
-
-
-		</tr>
-		{% endfor %}
-	</tbody>
-
-
-
-
-</table>
-
 
 
 <h1>{{item_summary.name}}</h1>
-{{item_summary.guid}}<br/>
-{{item_summary.icon}}<br/>
 
-Job(s): {{item_summary.jobs}}<br/>
-Can be HQ: {{item_summary.can_be_hq}}<br/>
-Stack size: {{item_summary.stack_size}}<br/>
-Dyeable: {{item_summary.is_dyeable}}<br/>
-Glamourous: {{item_summary.is_glamourous}}<br/>
-Tradeable: {{item_summary.is_untradable}}<br/>
-Unique: {{item_summary.is_unique}}<br/>
-Category: {{item_summary.ui_category}}<br/>
+<nav>
+	<div class="nav nav-tabs" id="nav-tab" role="tablist">
+	  <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Pricing</button>
 
-Vendor Price: {{item_summary.vendor_price}}<br/>
+	  <button class="nav-link" id="nav-velocity-tab" data-bs-toggle="tab" data-bs-target="#nav-velocity" type="button" role="tab" aria-controls="nav-velocity" aria-selected="false">Movement</button>
 
-{{item_summary.northamerica_listings_updated_at}}
-{{item_summary.northamerica_sales_updated_at}}
-{{item_summary.universalis_unresolved}}
 
-<h3>Recent Sales:</h3>
-<ul>
-{% for sale in item_summary.sales %}
-	<li>
-		{{sale.region}}-{{sale.world}} {{sale.price_per_unit}} x {{sale.quantity}} by {{sale.buyer_name}} on {{sale.sold_at}}
-	</li>	
-{% endfor %}
-</ul>
+	  <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Detail</button>
+	  <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Recipes</button>
+	</div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+	<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+		<table id="facts" class="display compact">
+			<thead>
+				<tr>
+					<th>World</th>
+					<th>Datacenter</th>
+					<th>NQ #<br/>Listed</th>
+					<th>NQ #<br/>Sold</th>
+					<th>NQ <br/>Listed <br/>Low</th>
+					<th>NQ <br/>Last <br/>Sold For</th>
+					<th>HQ #<br/>Listed</th>
+					<th>HQ #<br/>Sold</th>
+					<th>HQ <br/>Listed <br/>Low</th>
+					<th>HQ <br/>Last <br/>Sold For</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for world_name, fact in facts.items %}
+				<tr>
+					<td>{{world_name}}</td>
+					<td>{{fact.datacenter.name|default_if_none:''}} <span class="xyz">Best cost to craft NQ:783 HQ:1178</span></td>
+					<td>{{fact.nq_list_count|default_if_none:''}}</td>
+					<td>{{fact.nq_sold_count|default_if_none:''}}</td>
+					<td>{{fact.nq_list_low|default_if_none:''}}</td>
+					<td>{{fact.nq_last_sold_value|default_if_none:''}}</td>
+					<td>{{fact.hq_list_count|default_if_none:''}}</td>
+					<td>{{fact.hq_sold_count|default_if_none:''}}</td>
+					<td>{{fact.hq_list_low|default_if_none:''}}</td>
+					<td>{{fact.hq_last_sold_value|default_if_none:''}}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 
-<h3>Current Listings:</h3>
-<ul>
-{% for listing in item_summary.listings %}
-	<li>
-		{{listing.region}}-{{listing.world}} {{listing.price_per_unit}} x {{listing.quantity}} by {{listing.retainer_name}} as of {{listing.created_at}}
-	</li>	
-{% endfor %}
-</ul>
 
-<h3>Recipe(s):</h3>
 
-{% autoescape off %}
-{% render_recipes item_summary %}
-{% endautoescape %}
+		
+		
+	</div>
+
+	<div class="tab-pane fade" id="nav-velocity" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+		<h3>Recent Sales:</h3>
+		<ul>
+		{% for sale in item_summary.sales %}
+			<li>
+				{{sale.region}}-{{sale.world}} {{sale.price_per_unit}} x {{sale.quantity}} by {{sale.buyer_name}} on {{sale.sold_at}}
+			</li>	
+		{% endfor %}
+		</ul>
+		
+		<h3>Current Listings:</h3>
+		<ul>
+		{% for listing in item_summary.listings %}
+			<li>
+				{{listing.region}}-{{listing.world}} {{listing.price_per_unit}} x {{listing.quantity}} by {{listing.retainer_name}} as of {{listing.created_at}}
+			</li>	
+		{% endfor %}
+		</ul>	
+	
+	
+	</div>
+	<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+
+		{{item_summary.guid}}<br/>
+		{{item_summary.icon}}<br/>
+		
+		Job(s): {{item_summary.jobs}}<br/>
+		Can be HQ: {{item_summary.can_be_hq}}<br/>
+		Stack size: {{item_summary.stack_size}}<br/>
+		Dyeable: {{item_summary.is_dyeable}}<br/>
+		Glamourous: {{item_summary.is_glamourous}}<br/>
+		Tradeable: {{item_summary.is_untradable}}<br/>
+		Unique: {{item_summary.is_unique}}<br/>
+		Category: {{item_summary.ui_category}}<br/>
+		
+		Vendor Price: {{item_summary.vendor_price}}<br/>
+		
+		{{item_summary.northamerica_listings_updated_at}}
+		{{item_summary.northamerica_sales_updated_at}}
+		{{item_summary.universalis_unresolved}}
+		
+		
+
+	</div>
+	<div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">
+		<h3>Recipe(s):</h3>
+
+		{% autoescape off %}
+		{% render_recipes item_summary %}
+		{% endautoescape %}
+	</div>
+  </div>
+  
+
+
+
 
 <script>
 	$(document).ready(function () {
@@ -107,12 +129,17 @@ Vendor Price: {{item_summary.vendor_price}}<br/>
 						
 						if(data == 'Malboro'){
 							color='red'
+							background='blue'
 						}
 						
 						return '<span style="color:' + color + '">' + data + '</span>';
 					},
             	},
             	{
+                	data: 'datacenter',
+					visible: false,
+            	},
+				{
                 	data: 'b'
             	},	
             	{
@@ -138,8 +165,9 @@ Vendor Price: {{item_summary.vendor_price}}<br/>
             	},
 			],
 			rowGroup: {
-       			dataSrc: 'group'
-   			}
+       			dataSrc: 'datacenter'
+   			},
+			orderFixed: [1, 'asc']
 		});
 	});
 </script>

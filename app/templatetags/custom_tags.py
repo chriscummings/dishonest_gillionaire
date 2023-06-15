@@ -23,7 +23,7 @@ def _format_summary_recipes(item, indent=0):
 	formatted_string += f"<ul>\n"
 	for recipe in item['recipes']:
 		formatted_string += f"<li>\n"
-		formatted_string += f"Recipe: ({recipe['profession']}):\n"
+		formatted_string += f"Recipe: ({recipe['profession']} lvl {recipe['level']}):\n"
 		formatted_string += f"<ul>\n"
 		for ingredient in recipe['ingredients']:
 		 	formatted_string += f"<li>{_format_summary_recipes(ingredient, indent+1)}</li>\n"

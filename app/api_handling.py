@@ -76,6 +76,7 @@ class Universalis():
 				sale.buyer_name     = s['buyerName']
 				sale.sold_at        = datetime.fromtimestamp(s['timestamp'], timezone.utc)
 				sale.world          = world
+				sale.datacenter     = world.data_center
 				sale.updated_at = datetime.now()
 
 				if s['hq']:
@@ -178,6 +179,7 @@ class Universalis():
 				listing.quantity       = l['quantity']
 				listing.total          = l['total']
 				listing.world          = world
+				listing.datacenter     = world.data_center
 
 				if l['hq']:
 					listing.hq = True
@@ -434,6 +436,8 @@ class XivApi():
 			item.name          = i['Name'].lower()
 			item.display_name  = i['Name']
 			item.icon          = i['Icon']
+			item.item_level    = i['LevelItem']
+			item.equip_level   = i['LevelEquip']
 			item.can_be_hq     = True if i['CanBeHq'] == 1 else False
 			item.stack_size    = i['StackSize']
 			item.vendor_price  = i['PriceLow']
@@ -489,7 +493,7 @@ class XivApi():
 				recipe.name          = r['Name']
 				recipe.icon          = r['ItemResult']['Icon']
 				recipe.guid          = r['ID']
-				recipe.level 		 = r['ClassJob']['StartingLevel']
+				recipe.level 		 = r['RecipeLevelTable']['ClassJobLevel']
 				recipe.profession    = r['ClassJob']['Name']
 				recipe.item          = item
 				recipe.result_amount = r['AmountResult']

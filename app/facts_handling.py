@@ -127,6 +127,17 @@ def _compute_sales_facts(collection):
 @captute_runtime
 def compute_item_facts():
 
+	# recipes = Recipe.objects.order_by('level')
+
+	# for recipe in recipes:
+	# 	print(recipe.name)
+	# 	print(recipe.profession)
+	# 	print(recipe.ingredients.all())
+
+	# 	break
+
+
+
 	marketable_items = Item.objects.filter(is_marketable=True)
 
 	for item in marketable_items:
@@ -139,6 +150,8 @@ def compute_item_facts():
 
 		listings = Listing.objects.filter(updated_at__gte=hours_ago, item_id=item.id)
 		listings_by_world = _to_world_dict(listings)
+
+		new_facts = []
 
 		for world in World.objects.all():
 			print(f"{world.name}")
@@ -164,8 +177,6 @@ def compute_item_facts():
 				fact.hq_last_sold_value = sales_facts['hq_last_sold_value']
 				fact.nq_last_sold_value = sales_facts['nq_last_sold_value']
 
-
-
 			if world.name in listings_by_world.keys():
 				listings_facts = _compute_listings_facts(listings_by_world[world.name])
 
@@ -173,22 +184,51 @@ def compute_item_facts():
 				fact.nq_list_median = listings_facts['nq_list_median']
 				fact.nq_list_mode = listings_facts['nq_list_mode']
 				fact.nq_list_high = listings_facts['nq_list_high']
-				fact.nq_list_low = listings_facts['nq_list_low']
-				fact.nq_list_count = listings_facts['nq_list_count']
+				fact.nq_list_low = listings_facts['nq_list_low'] #
+				fact.nq_list_count = listings_facts['nq_list_count'] #
 				fact.hq_list_mean = listings_facts['hq_list_mean']
 				fact.hq_list_median = listings_facts['hq_list_median']
 				fact.hq_list_mode = listings_facts['hq_list_mode']
 				fact.hq_list_high = listings_facts['hq_list_high']
-				fact.hq_list_low = listings_facts['hq_list_low']
-				fact.hq_list_count = listings_facts['hq_list_count']
+				fact.hq_list_low = listings_facts['hq_list_low'] #
+				fact.hq_list_count = listings_facts['hq_list_count'] #
 
 				fact.hq_sellers_count = listings_facts['hq_sellers_count']
 				fact.nq_sellers_count = listings_facts['nq_sellers_count']
 
 			fact.item = item
 			fact.world = world
-			
+			fact.datacenter = world.data_center
+
 			fact.save()
-			print(fact)
+			new_facts.append(fact)
+
+		# Determine best-purchase-prices
+		
+	# Determine best-build-prices
 
 
+
+
+"""
+# for item in marketable items:
+# 	for world
+# 		get last fact for both item and world
+	
+
+best_price = {}
+
+select facts where nq_list_count > 0
+sort remainder by listings_facts
+get lowest nq value & world
+
+do the same for HQ
+
+create BestPriceNQ & BestPriceHQ
+
+-
+
+then for each DC
+	get last() BestPrice with that item_id
+
+"""
