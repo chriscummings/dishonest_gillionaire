@@ -1,4 +1,36 @@
+wipe prior build pricing!
+for recipe sorted by level
+	for world (as home)
+		shopping_list = []
 
+		for ingredient
+			if not already computed
+				best_region_price = None
+				best_region_world = None
+                #
+				best_dc_price     = None
+				best_dc_world     = None
+				#
+                best_home_price   = None
+
+				prices = []
+                
+				for world
+					prices.append((world,dc,region, price))
+				remove prices with null data
+
+				get best price for region(all records)
+					best_region_price = y
+					best_region_world = x
+
+				get best price for DC(records with dc.id=z)
+					best_dc_price = x
+					best_dc_world = y
+
+				get home world
+					best_home_price = a
+
+---
 
 docker-compose exec web python manage.py seed_data
 
