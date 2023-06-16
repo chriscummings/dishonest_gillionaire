@@ -32,10 +32,12 @@ for recipe sorted by level
 
 ---
 
+docker-compose up -d --build
+docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py seed_data
 
 docker-compose exec web python manage.py fetch_xivapi_item_list
-docker-compose exec web python manage.py fetch_xivapi_item_details
+docker-compose exec web python manage.py fetch_xivapi_item_details # recovery mode will need to be toggled to false for the first run FIXME
 docker-compose exec web python manage.py ingest_items
 
 docker-compose exec web python manage.py fetch_xivapi_recipe_list
