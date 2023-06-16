@@ -9,4 +9,4 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		handler = XivApi()
-		handler.fetch_item_details(recovery_mode=True)
+		handler.fetch_item_details(recovery_mode=True) 
