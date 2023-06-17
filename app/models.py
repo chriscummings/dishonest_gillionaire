@@ -241,13 +241,13 @@ class BestPurchasePricing(models.Model):
 
 	# remote availability
 	best_nq_listing_in_region_price = models.IntegerField(null=True)
-	best_nq_listing_in_region_world = models.ForeignKey(World, related_name='dscsdc', on_delete=models.CASCADE)
+	best_nq_listing_in_region_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
 	best_hq_listing_in_region_price = models.IntegerField(null=True)
-	best_hq_listing_in_region_world = models.ForeignKey(World, related_name='pricdsing', on_delete=models.CASCADE)
+	best_hq_listing_in_region_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
 	best_nq_listing_in_datacenter_price = models.IntegerField(null=True)
-	best_nq_listing_in_datacenter_world = models.ForeignKey(World, related_name='prsdicing', on_delete=models.CASCADE)
+	best_nq_listing_in_datacenter_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
 	best_hq_listing_in_datacenter_price = models.IntegerField(null=True)
-	best_hq_listing_in_datacenter_world = models.ForeignKey(World, related_name='pricsdcdscing', on_delete=models.CASCADE)
+	best_hq_listing_in_datacenter_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
 
  
 class BestCraftPricing(models.Model):
