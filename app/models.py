@@ -202,10 +202,10 @@ class Listing(models.Model):
 
 class BestPurchasePricing(models.Model):
 
-	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
-	home = models.ForeignKey(World, related_name='pricing', on_delete=models.CASCADE)
-	datacenter = models.ForeignKey(DataCenter, related_name='facts', on_delete=models.CASCADE)
-	region = models.ForeignKey(Region, related_name='pricing', on_delete=models.CASCADE)
+	item = models.ForeignKey(Item, on_delete=models.CASCADE)
+	home = models.ForeignKey(World, on_delete=models.CASCADE)
+	datacenter = models.ForeignKey(DataCenter, on_delete=models.CASCADE)
+	region = models.ForeignKey(Region, on_delete=models.CASCADE)
 
 	# home competition
 	home_nq_sold_mean = models.FloatField(null=True) 
@@ -241,13 +241,13 @@ class BestPurchasePricing(models.Model):
 
 	# remote availability
 	best_nq_listing_in_region_price = models.IntegerField(null=True)
-	best_nq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_nq_listing_in_region_world = models.ForeignKey(World, related_name='dscsdc', on_delete=models.CASCADE)
 	best_hq_listing_in_region_price = models.IntegerField(null=True)
-	best_hq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_hq_listing_in_region_world = models.ForeignKey(World, related_name='pricdsing', on_delete=models.CASCADE)
 	best_nq_listing_in_datacenter_price = models.IntegerField(null=True)
-	best_nq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_nq_listing_in_datacenter_world = models.ForeignKey(World, related_name='prsdicing', on_delete=models.CASCADE)
 	best_hq_listing_in_datacenter_price = models.IntegerField(null=True)
-	best_hq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_hq_listing_in_datacenter_world = models.ForeignKey(World, related_name='pricsdcdscing', on_delete=models.CASCADE)
 
  
 class BestCraftPricing(models.Model):

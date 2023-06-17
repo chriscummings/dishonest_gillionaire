@@ -126,18 +126,8 @@ def _compute_sales_facts(collection):
 
 @captute_runtime
 def compute_item_facts():
-
-	# recipes = Recipe.objects.order_by('level')
-
-	# for recipe in recipes:
-	# 	print(recipe.name)
-	# 	print(recipe.profession)
-	# 	print(recipe.ingredients.all())
-
-	# 	break
-
-
-
+	print("hello")
+	"""
 	marketable_items = Item.objects.filter(is_marketable=True)
 
 	for item in marketable_items:
@@ -206,29 +196,4 @@ def compute_item_facts():
 		# Determine best-purchase-prices
 		
 	# Determine best-build-prices
-
-
-
-
-"""
-# for item in marketable items:
-# 	for world
-# 		get last fact for both item and world
-	
-
-best_price = {}
-
-select facts where nq_list_count > 0
-sort remainder by listings_facts
-get lowest nq value & world
-
-do the same for HQ
-
-create BestPriceNQ & BestPriceHQ
-
--
-
-then for each DC
-	get last() BestPrice with that item_id
-
-"""
+	"""
