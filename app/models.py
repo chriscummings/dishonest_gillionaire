@@ -198,6 +198,63 @@ class Listing(models.Model):
 			'total': self.total,
 			'created_at': self.created_at
 		}
+
+
+class BestPurchasePricing(models.Model):
+
+	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
+	home = models.ForeignKey(World, related_name='pricing', on_delete=models.CASCADE)
+	datacenter = models.ForeignKey(DataCenter, related_name='facts', on_delete=models.CASCADE)
+	region = models.ForeignKey(Region, related_name='pricing', on_delete=models.CASCADE)
+
+	# home competition
+	home_nq_sold_mean = models.FloatField(null=True) 
+	home_nq_sold_median = models.FloatField(null=True) 
+	home_nq_sold_mode = models.FloatField(null=True) 
+	home_nq_sold_high = models.IntegerField(null=True)
+	home_nq_sold_low = models.IntegerField(null=True)
+	home_nq_sold_count = models.IntegerField(null=True)
+	home_nq_sellers_count = models.IntegerField(null=True)
+	home_hq_sold_mean = models.FloatField(null=True) 
+	home_hq_sold_median = models.FloatField(null=True) 
+	home_hq_sold_mode = models.FloatField(null=True) 
+	home_hq_sold_high = models.IntegerField(null=True)
+	home_hq_sold_low = models.IntegerField(null=True)
+	home_hq_sold_count = models.IntegerField(null=True)
+	home_hq_sellers_count = models.IntegerField(null=True)
+
+	# home availability
+	home_nq_list_mean = models.FloatField(null=True) 
+	home_nq_list_median = models.FloatField(null=True) 
+	home_nq_list_mode = models.FloatField(null=True) 
+	home_nq_list_high = models.IntegerField(null=True)
+	home_nq_list_low = models.IntegerField(null=True)
+	home_nq_list_count = models.IntegerField(null=True)
+	home_nq_listers_count = models.IntegerField(null=True)
+	home_hq_list_mean = models.FloatField(null=True) 
+	home_hq_list_median = models.FloatField(null=True) 
+	home_hq_list_mode = models.FloatField(null=True) 
+	home_hq_list_high = models.IntegerField(null=True)
+	home_hq_list_low = models.IntegerField(null=True)
+	home_hq_list_count = models.IntegerField(null=True)
+	home_hq_listers_count = models.IntegerField(null=True)
+
+	# remote availability
+	best_nq_listing_in_region_price = models.IntegerField(null=True)
+	best_nq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_hq_listing_in_region_price = models.IntegerField(null=True)
+	best_hq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_nq_listing_in_datacenter_price = models.IntegerField(null=True)
+	best_nq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
+	best_hq_listing_in_datacenter_price = models.IntegerField(null=True)
+	best_hq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
+
+ 
+class BestCraftPricing(models.Model):
+	pass
+
+
+
 """
 
 class PurchasePricing(models.Model):
