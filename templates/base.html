@@ -1,3 +1,5 @@
+{% load custom_tags %}
+
 {% load static %}
 <header>
 	<style>
@@ -48,5 +50,119 @@
 
 </header>
 {% include '_search_bar.html' %}
+
+<div id="notificationsDiv"></div>
+
 {% block content %}
 {% endblock content %}
+
+<script>
+	const cookieName = 'dishonest'
+
+	const notificationsDiv = document.getElementById('notificationsDiv')
+
+// check for cookie
+// 		prompt for world
+// 			set cookie
+
+	function createCookie(name, value, days) {
+		if (days) {
+			var date = new Date();
+			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+			var expires = "; expires=" + date.toGMTString();
+		}
+		else var expires = "";               
+
+		document.cookie = name + "=" + value + expires + "; path=/";
+	}
+
+	function readCookie(name) {
+		var nameEQ = name + "=";
+		var ca = document.cookie.split(';');
+		for (var i = 0; i < ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+		}
+		return null;
+	}
+
+	function eraseCookie(name) {
+		createCookie(name, "", -1);
+	}
+
+	function setHomeWorld(){
+
+		let homeworld = $('#homeWorldSelect :selected').text();
+
+
+		createCookie(cookieName, homeworld, 30)
+
+
+
+
+		$(notificationsDiv).empty().append("<div class='alert alert-success alert-dismissible' role='alert'>Your home world has been set to "+homeworld+".<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>	</div>")
+		
+
+	}
+
+	$(document).ready(function(){
+
+		let cookie = readCookie(cookieName);
+		const myModal = new bootstrap.Modal(document.getElementById('worldSelectModal'))
+		const selectButton = document.getElementById('homeWorldSet');
+		const homeWorldResetButton = document.getElementById('homeWorldReset');
+
+		homeWorldResetButton.onclick = function(){
+			myModal.show()
+
+		}
+		
+
+		selectButton.onclick = function(){
+			setHomeWorld()
+			myModal.hide()
+		}
+
+
+
+		if(cookie == null){
+			myModal.show()
+		}
+
+
+
+	})
+
+</script>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="worldSelectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title fs-5" id="staticBackdropLabel">Please select a home world.</h1>
+		</div>
+		<div class="modal-body">
+
+			<ul>
+				<li>Pricing is based on home world.</li>
+				<li>Only North American home worlds currently.</li>
+			</ul>
+
+
+			<select name="home_world" id="homeWorldSelect">
+				{% autoescape off %}
+				{%world_dropdown%}		
+				{% endautoescape %}
+			</select>
+			<button type="button" id="homeWorldSet" class="btn btn-primary btn-sm">Set Home World</button>
+
+
+		</div>
+
+	  </div>
+	</div>
+  </div>
+  

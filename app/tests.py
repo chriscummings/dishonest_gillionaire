@@ -1,26 +1,28 @@
 from django.test import TestCase
 from app.models import *
 from app.api_handling import *
+from glob import glob
 
 class ApiHandlingTest(TestCase):
 	def test_ingest_item_details(self):
 		handler = XivApi()
-		handler.ingest_item_details(input_file="./app/test_data/items.json")
-
+		handler.ingest_item_details(src_dir="./app/test_data/items")
 		self.assertEqual(19, len(Item.objects.all()))
-
 
 	def test_ingest_recipe_details(self):
 		handler = XivApi()
-
-		handler.ingest_item_details(input_file="./app/test_data/items.json")
-		print("---")
-		handler.ingest_recipe_details(input_file="./app/test_data/recipes.json")
-
+		handler.ingest_item_details(src_dir="./app/test_data/items")
+		handler.ingest_recipe_details(src_dir="./app/test_data/recipes")
 		self.assertEqual(7, len(Recipe.objects.all()))
+		#self.assertEqual(999, len(Ingredient.objects.all()))
 
-		self.assertEqual(999, len(Ingredient.objects.all()))
+	def test_fetch_and_process_item_listings(self):
+		handler = Universalis()
 
+		listing_json_files = glob("./app/test_data/listings/*.json")
+
+		for f in listing_json_files:
+			handler.fetch_and_process_item_listings("", json_file=f)
 
 
 

@@ -5,8 +5,129 @@
 {% load custom_tags %}
 
 
+{% load static %}
 
-<h1>{{item_summary.name}}</h1>
+<h1>&nbsp;<img src="{% static icon %}"> {{item_summary.name}} {{item_summary.guid}}</h1>
+
+
+
+<h4>Best Purchasing Options</h4>
+<table id="purchasePricing" class="display compact">
+	<thead>
+		<tr>
+			<th>Quality</th>
+			<th>Home</th>
+			<th>Best on Datacenter</th>
+			<th>Best inRegion</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>NQ</td>
+			<td>{{purchase_pricing.home_nq_list_low}} ({{purchase_pricing.home.name}})</td>
+			<td>{{purchase_pricing.best_nq_listing_in_datacenter_price}} ({{purchase_pricing.best_nq_listing_in_datacenter_world.name}})</td>
+			<td>{{purchase_pricing.best_nq_listing_in_region_price}} ({{purchase_pricing.best_nq_listing_in_region_world.name}})</td>
+		</tr>
+		<tr>
+			<td>HQ</td>
+			<td>{{purchase_pricing.home_hq_list_low}} ({{purchase_pricing.home.name}})</td>
+			<td>{{purchase_pricing.best_hq_listing_in_datacenter_price}} ({{purchase_pricing.best_hq_listing_in_datacenter_world.name}})</td>
+			<td>{{purchase_pricing.best_hq_listing_in_region_price}} ({{purchase_pricing.best_hq_listing_in_region_world.name}})</td>
+		</tr>
+	</tbody>
+</table>
+
+<h4>Best Cradting Options</h4>
+<table id="craftingPricing" class="display compact">
+	<thead>
+		<tr>
+			<th>Quality</th>
+			<th>Home Craft Price</th>
+			<th>Best DC Craft Price</th>
+			<th>Best Region Craft Price</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>NQ</td>
+			<td>
+				{% if craft_pricing.nq_home_craft_price_is_partial %}
+					<i>{{craft_pricing.nq_home_craft_price}}*</i>
+				{% else %}
+					{{craft_pricing.nq_home_craft_price}}
+				{% endif %}
+			</td>
+			<td>
+				{% if craft_pricing.nq_dc_craft_price_is_partial %}
+					<i>{{craft_pricing.nq_dc_craft_price}}*</i>
+				{% else %}
+					{{craft_pricing.nq_dc_craft_price}}
+				{% endif %}
+			</td>
+			<td>
+
+				{% if craft_pricing.nq_region_craft_price_is_partial %}
+					<i>{{craft_pricing.nq_region_craft_price}}*</i>
+				{% else %}
+					{{craft_pricing.nq_region_craft_price}}
+				{% endif %}
+
+
+			</td>
+		</tr>
+		<tr>
+			<td>HQ</td>
+			<td>
+				{% if craft_pricing.hq_home_craft_price_is_partial %}
+					<i>{{craft_pricing.hq_home_craft_price}}*</i>
+				{% else %}
+					{{craft_pricing.hq_home_craft_price}}
+				{% endif %}
+			</td>
+			<td>
+				{% if craft_pricing.hq_dc_craft_price_is_partial %}
+					<i>{{craft_pricing.hq_dc_craft_price}}*</i>
+				{% else %}
+					{{craft_pricing.hq_dc_craft_price}}
+				{% endif %}
+			</td>
+			<td>
+				{% if craft_pricing.hq_region_craft_price_is_partial %}
+					<i>{{craft_pricing.hq_region_craft_price}}*</i>
+				{% else %}
+					{{craft_pricing.hq_region_craft_price}}
+				{% endif %}
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+
+<h4>Homeworld Selling Details</h4>
+
+<table id="salesDeets" class="display compact">
+	<thead>
+		<tr>
+			<th>HQ</th>
+			<th>NQ</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				Competing Sellers {{purchase_pricing.home_hq_list_count}}<br>
+				Low listing {{purchase_pricing.home_hq_list_low}}<br/>
+				Recent sales {{purchase_pricing.home_hq_sold_count}}
+			</td>
+			<td>
+				Competing Sellers {{purchase_pricing.home_nq_list_count}}<br/>
+				Low listing {{purchase_pricing.home_nq_list_low}}<br/>
+				Recent sales {{purchase_pricing.home_nq_sold_count}}
+
+			</td>
+		</tr>
+	</tbody>
+</table>
 
 <nav>
 	<div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -21,6 +142,10 @@
   </nav>
   <div class="tab-content" id="nav-tabContent">
 	<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+	
+
+
+
 		<table id="facts" class="display compact">
 			<thead>
 				<tr>
@@ -40,7 +165,7 @@
 				{% for world_name, fact in facts.items %}
 				<tr>
 					<td>{{world_name}}</td>
-					<td>{{fact.datacenter.name|default_if_none:''}} <span class="xyz">Best cost to craft NQ:783 HQ:1178</span></td>
+					<td>{{fact.datacenter.name|default_if_none:''}}</td>
 					<td>{{fact.nq_list_count|default_if_none:''}}</td>
 					<td>{{fact.nq_sold_count|default_if_none:''}}</td>
 					<td>{{fact.nq_list_low|default_if_none:''}}</td>
@@ -95,6 +220,8 @@
 		Unique: {{item_summary.is_unique}}<br/>
 		Category: {{item_summary.ui_category}}<br/>
 		
+		is_marketable: {{item_summary.is_marketable}}<br/>
+
 		Vendor Price: {{item_summary.vendor_price}}<br/>
 		
 		{{item_summary.northamerica_listings_updated_at}}
@@ -119,8 +246,25 @@
 
 <script>
 	$(document).ready(function () {
+
+
+		$('#craftingPricing').DataTable({
+			searching: false, paging: false, info: false
+		})	
+
+		$('#salesDeets').DataTable({
+			searching: false, paging: false, info: false
+		})
+
+		$('#purchasePricing').DataTable({
+			searching: false, paging: false, info: false
+		})
+
+
 		$('#facts').DataTable({
 			"paging": false,
+			searching: false,
+			info: false,
 			columns: [
             	{
                 	data: 'a',

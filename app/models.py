@@ -5,7 +5,7 @@ import pdb
 class Item(models.Model):
 	name                             = models.TextField()
 	display_name                     = models.TextField()
-	item_level                            = models.IntegerField()
+	item_level                       = models.IntegerField()
 	equip_level                      = models.IntegerField()
 	icon                             = models.TextField()
 	guid                             = models.IntegerField() # Source/official item ID.
@@ -46,7 +46,7 @@ class Item(models.Model):
 		return f'({self.guid}) {self.name}'
 
 	# the short argument prevents recursion from related models.
-	def summary(self, sale_limit=6, listing_limit=3, short=False):
+	def summary(self, sale_limit=6, listing_limit=3, short=False, world=None):
 		summary = {}
 		summary['klass'] = 'item',
 		summary['id'] = self.id,
@@ -62,6 +62,9 @@ class Item(models.Model):
 		summary['is_unique'] = self.is_unique
 		summary['game_ui_category'] = self.game_ui_category
 		summary['vendor_price'] = self.vendor_price
+		summary['is_marketable'] = self.is_marketable
+
+
 
 		# TODO: get best price, create key either way
 
@@ -78,7 +81,7 @@ class Item(models.Model):
 		summary['recipes'] = []
 		if not short:
 			for recipe in self.recipes.all():
-				summary['recipes'].append(recipe.summary())
+				summary['recipes'].append(recipe.summary(world=world))
 				continue # REMOVE ME!
 
 		return summary
@@ -102,20 +105,29 @@ class Recipe(models.Model):
 	def __str__(self):
 		return f'({self.guid}) {self.name} (recipe)'
 
-	def summary(self):
+	def summary(self, world=None):
 		summary = {
+			'to_craft': None,
 			'name': self.name,
 			'icon': self.icon,
 			'guid': self.guid,
 			'level': self.level,
 			'profession': self.profession,
 			'result_amount': self.result_amount,
-			'ingredients': []
+			'ingredients': [],
 		}
+
+
+
 
 		for ingredient in self.ingredients.all():
 			# TODO: !!? calling short summary on this to prevent recursive action... maybe the argument should be long=False??
-			summary['ingredients'].append(ingredient.summary(short=False, sale_limit=0, listing_limit=0))
+			summary['ingredients'].append(ingredient.summary(short=False, sale_limit=0, listing_limit=0, world=world))
+
+
+		craft_pricing = BestCraftPricing.objects.filter(home=world, item=self.item).last()
+		if craft_pricing:
+			summary['to_craft'] = craft_pricing
 
 		return summary
 
@@ -130,12 +142,23 @@ class Ingredient(models.Model):
 	recipe = models.ForeignKey(Recipe, related_name="ingredients", on_delete=models.CASCADE)
 
 
-	def summary(self, short=False, sale_limit=0, listing_limit=0):
-		item_summary = {}
+	def summary(self, short=False, sale_limit=0, listing_limit=0, world=None):
 
-		item_summary = self.item.summary()
+
+
+
+
+
+		item_summary = self.item.summary(world=world)
 
 		item_summary["material_count"] = self.count
+		item_summary['purchase_pricing']=None
+
+
+		purchase_pricing = BestPurchasePricing.objects.filter(home=world, item=self.item).last()
+		if purchase_pricing:
+			item_summary['purchase_pricing'] = purchase_pricing
+
 
 		return item_summary
 		
@@ -156,6 +179,10 @@ class World(models.Model):
 
 	# Relationships
 	data_center = models.ForeignKey(DataCenter, related_name='worlds', on_delete=models.CASCADE)
+
+	def __str__(self):
+		return f"{self.name}"
+
 
 
 class Listing(models.Model):
@@ -202,10 +229,20 @@ class Listing(models.Model):
 
 class BestPurchasePricing(models.Model):
 
+	class Meta:
+		indexes = [
+			models.Index(fields=['item_id']),
+			models.Index(fields=['home_id']),
+		]
+
 	item = models.ForeignKey(Item, on_delete=models.CASCADE)
 	home = models.ForeignKey(World, on_delete=models.CASCADE)
 	datacenter = models.ForeignKey(DataCenter, on_delete=models.CASCADE)
 	region = models.ForeignKey(Region, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return f'HQ {self.home_hq_list_low} {self.home.name} / {self.best_hq_listing_in_datacenter_price} {self.best_hq_listing_in_datacenter_world} / {self.best_hq_listing_in_region_price} {self.best_hq_listing_in_region_world} | NQ {self.home_hq_list_low} {self.home} / {self.best_nq_listing_in_datacenter_price} {self.best_nq_listing_in_datacenter_world} / {self.best_nq_listing_in_region_price} {self.best_nq_listing_in_region_world}'
+
 
 	# home competition
 	home_nq_sold_mean = models.FloatField(null=True) 
@@ -241,17 +278,45 @@ class BestPurchasePricing(models.Model):
 
 	# remote availability
 	best_nq_listing_in_region_price = models.IntegerField(null=True)
-	best_nq_listing_in_region_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
+	best_nq_listing_in_region_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE, null=True)
 	best_hq_listing_in_region_price = models.IntegerField(null=True)
-	best_hq_listing_in_region_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
+	best_hq_listing_in_region_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE, null=True)
 	best_nq_listing_in_datacenter_price = models.IntegerField(null=True)
-	best_nq_listing_in_datacenter_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
+	best_nq_listing_in_datacenter_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE, null=True)
 	best_hq_listing_in_datacenter_price = models.IntegerField(null=True)
-	best_hq_listing_in_datacenter_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE)
+	best_hq_listing_in_datacenter_world = models.ForeignKey(World, related_name='+', on_delete=models.CASCADE, null=True)
 
  
 class BestCraftPricing(models.Model):
-	pass
+
+	def __str__(self):
+		return f'{self.nq_home_craft_price}/{self.nq_dc_craft_price}/{self.nq_region_craft_price}-{self.hq_home_craft_price}/{self.hq_dc_craft_price}/{self.hq_region_craft_price}'
+
+	item = models.ForeignKey(Item, on_delete=models.CASCADE)
+	home = models.ForeignKey(World, on_delete=models.CASCADE)
+	datacenter = models.ForeignKey(DataCenter, on_delete=models.CASCADE)
+	region = models.ForeignKey(Region, on_delete=models.CASCADE)
+
+	nq_home_craft_price = models.BigIntegerField(null=True)
+	nq_home_craft_price_is_partial = models.BooleanField(default=False)
+
+	nq_dc_craft_price = models.BigIntegerField(null=True)
+	nq_dc_craft_price_is_partial = models.BooleanField(default=False)
+	
+	nq_region_craft_price = models.BigIntegerField(null=True)
+	nq_region_craft_price_is_partial = models.BooleanField(default=False)
+	
+	hq_home_craft_price = models.BigIntegerField(null=True)
+	hq_home_craft_price_is_partial = models.BooleanField(default=False)
+	
+	hq_dc_craft_price = models.BigIntegerField(null=True)
+	hq_dc_craft_price_is_partial = models.BooleanField(default=False)
+	
+	hq_region_craft_price = models.BigIntegerField(null=True)
+	hq_region_craft_price_is_partial = models.BooleanField(default=False)
+
+
+
 
 
 
@@ -345,9 +410,9 @@ class WorldItemFact(models.Model):
 	hq_sold_count     = models.IntegerField(null=True)
 	hq_sellers_count  = models.IntegerField(null=True)
 	hq_list_mean   = models.FloatField(null=True)
-	hq_list_median = models.FloatField(null=True)
-	hq_list_mode   = models.FloatField(null=True)
-	hq_list_high   = models.IntegerField(null=True)
+	hq_list_mean = models.FloatField(null=True)
+	hq_list_mean   = models.FloatField(null=True)
+	hq_list_mean   = models.IntegerField(null=True)
 	hq_list_low    = models.IntegerField(null=True)
 	hq_list_count  = models.IntegerField(null=True)
 

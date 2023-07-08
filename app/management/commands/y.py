@@ -1,57 +1,44 @@
 from app.models import *
 from django.core.management.base import BaseCommand, CommandError
 import json
+from glob import glob
+import shutil
+
 
 class Command(BaseCommand):
+
 	"""Required class for using manage.py to invoke tasks.
 	"""
 	help = ''
 
 	def handle(self, *args, **options):
+		
+		item_guids = [19584, 19947, 19957, 5116, 8, 19947, 9, 19928, 19933, 10, 19983, 19984, 19984, 19985, 19986, 5522, 5491, 5518, 7, 12, 11]
 
-		marketable_item_ids = json.load(open("3rd_party_sample_data/universalis-marketable-items.json"))
-		item_details = json.load(open("data/xivapi_items.json"))
-		values_set = set()
+		items_dir = 'data/item_details'
+		recipes_dir = 'data/recipe_details'
+		output_dir = 'app/test_data'
 
+		item_json_files = glob(f"{items_dir}/*.json")
+		for json_file in item_json_files:
+			f = open(json_file)
+			data = json.load(f)
 
-		# for i in item_details:
-		# 	values_set.add(i['FilterGroup'])
+			item_guid = data["ID"]
 
-		# print(values_set)
+			if item_guid in item_guids:
+				shutil.copyfile(json_file, f"{output_dir}/item_{item_guid}.json")
 
+		recipe_json_files = glob(f"{recipes_dir}/*.json")
+		for json_file in recipe_json_files:
+			f = open(json_file)
+			data = json.load(f)
 
+			item_guid = data["ItemResultTargetID"]
+			recipe_guid = data['ID']
 
-
-
-		for i in item_details:
-			if i['ID'] in marketable_item_ids:
-				if i['ItemSearchCategory']:
-					values_set.add(i['ItemSearchCategory']['Name'])
-				else:
-					print("f")
-		print(values_set)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		# for item_id in marketable_item_ids:
-		# 	item = Item.objects.get(guid=item_id)
-		# 	print(item.is_untradable)
-
-		# 	values_set.add()
-
-
+			if item_guid in item_guids:
+				shutil.copyfile(json_file, f"{output_dir}/recipe_{recipe_guid}.json")
 
 
 

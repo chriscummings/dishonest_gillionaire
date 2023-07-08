@@ -22,6 +22,12 @@ def item_index(request):
 def item_show(request, item_guid):
 	item = Item.objects.get(guid=item_guid)
 
+	home_name = request.COOKIES.get('dishonest')
+	home = World.objects.filter(name=home_name)[0]
+
+	purchase_pricing = BestPurchasePricing.objects.filter(home=home, item=item).last()
+	craft_pricing = BestCraftPricing.objects.filter(home=home, item=item).last()
+
 	facts = {}
 	x = []
 
@@ -38,10 +44,15 @@ def item_show(request, item_guid):
 				x = WorldItemFact.objects.filter(item_id=item.id, world_id=world.id)
 
 
+	icon = f"icon/{item.summary()['icon'].split('/')[-1]}"
+
 	context = {
+		'icon':icon,
 		'facts': facts,
-		'item_summary':item.summary(),
-		'x':x
+		'item_summary':item.summary(world=home),
+		'x':x,
+		'purchase_pricing':purchase_pricing,
+		'craft_pricing':craft_pricing,
 	}
 
 	return render(request, 'item_show.html', context)
@@ -54,3 +65,18 @@ def results_view(request):
 	context = {'items': items}
 	return render(request, 'search_results.html', context)
 
+def pricing_view(request):
+
+	item_id = request.GET.get('item')
+	home_world = request.GET.get('home')
+
+
+
+	if item_id == None or home_world == None:
+		raise Exception("FIXME: handle this...")
+
+	##
+	# BestPurchasePricing.objects.filter(item_id=item_id, home_id=home_world).last()
+	##
+	context = {"item_id":item_id, "home_world":home_world}
+	return render(request, 'item_pricing.html', context)

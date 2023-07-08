@@ -138,8 +138,16 @@ class Universalis():
 
 	@sleep_and_retry
 	@limits(calls=UNIVERSALIS_MAX_CALLS_PER_SECOND, period=1)
-	def fetch_and_process_item_listings(self, item_ids_querystring):
-		api_resp = fetch_json(self.API_ENDPOINT+"North-America/"+item_ids_querystring+"?listings="+str(self.LISTINGS_PER_API_CALL)+"&noGst=1")
+	def fetch_and_process_item_listings(self, item_ids_querystring, json_file=None):
+		"""
+		json_file - used for testing 
+		"""
+
+		if json_file:
+			f = open(json_file)
+			api_resp = json.load(f)
+		else:
+			api_resp = fetch_json(self.API_ENDPOINT+"North-America/"+item_ids_querystring+"?listings="+str(self.LISTINGS_PER_API_CALL)+"&noGst=1")
 
 		# Handle items unknown by Universalis..
 		for item_id in api_resp['unresolvedItems']:
@@ -418,8 +426,13 @@ class XivApi():
 				pass 
 
 	@captute_runtime
-	def ingest_item_details(self):
-		json_files = glob(f"{self.ITEM_DETAILS_TEMP_DIR}/*.json")
+	def ingest_item_details(self, src_dir=None):
+
+		if src_dir:
+			json_files = glob(f"{src_dir}/*.json")
+		else:
+			json_files = glob(f"{self.ITEM_DETAILS_TEMP_DIR}/*.json")
+	
 		for f in json_files:
 			i = json.load(open(f))
 
@@ -469,8 +482,13 @@ class XivApi():
 		ingredient.save()
 
 	@captute_runtime
-	def ingest_recipe_details(self):
-		json_files = glob(f"{self.RECIPE_DETAILS_TEMP_DIR}/*.json")
+	def ingest_recipe_details(self, src_dir=None):
+
+		if src_dir:
+			json_files = glob(f"{src_dir}/*.json")
+		else:
+			json_files = glob(f"{self.RECIPE_DETAILS_TEMP_DIR}/*.json")
+
 		for f in json_files:
 			r = json.load(open(f))
 

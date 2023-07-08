@@ -1,3 +1,10 @@
+{% load custom_tags %}
+
+
+  
+<button type="button" id="homeWorldReset" class="btn btn-outline-warning btn-sm">Reset Home World</button>
+
+
 <form action="/results/" method="POST" id="item_search_bar">
 	{% csrf_token %}
 	{{ search_form }}

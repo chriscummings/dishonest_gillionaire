@@ -1,7 +1,7 @@
 *.sqlite3
 data/*
 
-
+static/icon/*
 
 *.pyc
 
