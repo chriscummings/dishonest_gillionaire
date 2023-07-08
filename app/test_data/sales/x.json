@@ -1,0 +1,43 @@
+{
+    "itemIDs": [ 8, 9 ],
+    "items": {
+      "8": {
+        "itemID": 8,
+        "lastUploadTime": 1688836018110,
+        "entries": [
+          {
+            "hq": false,
+            "pricePerUnit": 69,
+            "quantity": 400,
+            "buyerName": "Ole Ophus",
+            "onMannequin": false,
+            "timestamp": 1688835065,
+            "worldName": "Adamantoise",
+            "worldID": 73
+          },
+          {
+            "hq": false,
+            "pricePerUnit": 26,
+            "quantity": 1000,
+            "buyerName": "Anna Maniac",
+            "onMannequin": false,
+            "timestamp": 1688245802,
+            "worldName": "Behemoth",
+            "worldID": 78
+          }
+        ],
+        "regionName": "North-America",
+        "stackSizeHistogram": {
+
+        },
+        "stackSizeHistogramNQ": {
+
+        },
+        "stackSizeHistogramHQ": {},
+        "regularSaleVelocity": 257.14285,
+        "nqSaleVelocity": 257.14285,
+        "hqSaleVelocity": 0
+      }
+    },
+    "unresolvedItems": []
+  }

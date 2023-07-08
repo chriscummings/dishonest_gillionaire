@@ -2,27 +2,43 @@ from django.test import TestCase
 from app.models import *
 from app.api_handling import *
 from glob import glob
+from app.utils import seed_region_dc_world
 
 class ApiHandlingTest(TestCase):
+	
 	def test_ingest_item_details(self):
-		handler = XivApi()
-		handler.ingest_item_details(src_dir="./app/test_data/items")
+		XivApi().ingest_item_details(src_dir="./app/test_data/items")
 		self.assertEqual(19, len(Item.objects.all()))
 
 	def test_ingest_recipe_details(self):
-		handler = XivApi()
-		handler.ingest_item_details(src_dir="./app/test_data/items")
-		handler.ingest_recipe_details(src_dir="./app/test_data/recipes")
+		# Seed items
+		XivApi().ingest_item_details(src_dir="./app/test_data/items")
+		# Test
+		XivApi().ingest_recipe_details(src_dir="./app/test_data/recipes")
 		self.assertEqual(7, len(Recipe.objects.all()))
-		#self.assertEqual(999, len(Ingredient.objects.all()))
 
 	def test_fetch_and_process_item_listings(self):
-		handler = Universalis()
+		# Seed locations
+		seed_region_dc_world()
+		# Seed items
+		XivApi().ingest_item_details(src_dir="./app/test_data/items")
+		# Test
+		for f in glob("./app/test_data/listings/*.json"):
+			Universalis().fetch_and_process_item_listings("", json_file=f)
+		self.assertEqual(1, len(Listing.objects.all()))
 
-		listing_json_files = glob("./app/test_data/listings/*.json")
+	def test_fetch_and_process_item_sales(self):
+		# Seed locations
+		seed_region_dc_world()
+		# Seed items
+		XivApi().ingest_item_details(src_dir="./app/test_data/items")
+		# Test
+		for f in glob("./app/test_data/sales/*.json"):
+			Universalis().fetch_and_process_item_sales("", json_file=f)
+		self.assertEqual(2, len(Sale.objects.all()))
 
-		for f in listing_json_files:
-			handler.fetch_and_process_item_listings("", json_file=f)
+
+
 
 
 

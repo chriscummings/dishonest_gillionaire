@@ -37,11 +37,19 @@ class Universalis():
 
 	@sleep_and_retry
 	@limits(calls=UNIVERSALIS_MAX_CALLS_PER_SECOND, period=1)
-	def fetch_and_process_item_sales(self, item_ids_querystring):
+	def fetch_and_process_item_sales(self, item_ids_querystring, json_file=None):
+		"""
+		json_file - used for testing 
+		"""
+
 		new_sale_count = 0
 
-		# FIXME: hard-coded north america
-		api_resp = fetch_json(self.API_ENDPOINT+"history/North-America/"+item_ids_querystring+"?entriesToReturn="+str(self.MAX_SALES_PER_ITEM))
+		if json_file:
+			f = open(json_file)
+			api_resp = json.load(f)
+		else:
+			# FIXME: hard-coded north america
+			api_resp = fetch_json(self.API_ENDPOINT+"history/North-America/"+item_ids_querystring+"?entriesToReturn="+str(self.MAX_SALES_PER_ITEM))
 
 		# Handle items unknown by Universalis..
 		for item_id in api_resp['unresolvedItems']:
@@ -150,8 +158,10 @@ class Universalis():
 			api_resp = fetch_json(self.API_ENDPOINT+"North-America/"+item_ids_querystring+"?listings="+str(self.LISTINGS_PER_API_CALL)+"&noGst=1")
 
 		# Handle items unknown by Universalis..
-		for item_id in api_resp['unresolvedItems']:
-			Item.flag_universalis_unresolved(item_id)
+
+		if 'unresolvedItems' in api_resp.keys():
+			for item_id in api_resp['unresolvedItems']:
+				Item.flag_universalis_unresolved(item_id)
 
 		for key in api_resp['items'].keys():
 			item_id = key
