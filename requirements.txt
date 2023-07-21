@@ -59,3 +59,6 @@ xhtml2pdf==0.2.11
 psycopg2-binary==2.9.3
 ratelimit
 requests
+django-debug-toolbar
+
+
