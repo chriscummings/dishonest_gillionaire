@@ -17,16 +17,6 @@ class ApiHandlingTest(TestCase):
 		XivApi().ingest_recipe_details(src_dir="./app/test_data/recipes")
 		self.assertEqual(7, len(Recipe.objects.all()))
 
-	def test_fetch_and_process_item_listings(self):
-		# Seed locations
-		seed_region_dc_world()
-		# Seed items
-		XivApi().ingest_item_details(src_dir="./app/test_data/items")
-		# Test
-		for f in glob("./app/test_data/listings/*.json"):
-			Universalis().fetch_and_process_item_listings("", json_file=f)
-		self.assertEqual(6, len(Listing.objects.all()))
-
 	def test_fetch_and_process_item_sales(self):
 		# Seed locations
 		seed_region_dc_world()
@@ -36,6 +26,18 @@ class ApiHandlingTest(TestCase):
 		for f in glob("./app/test_data/sales/*.json"):
 			Universalis().fetch_and_process_item_sales("", json_file=f)
 		self.assertEqual(2, len(Sale.objects.all()))
+
+	def test_fetch_and_process_item_listings(self):
+		# Seed locations
+		seed_region_dc_world()
+		# Seed items
+		XivApi().ingest_item_details(src_dir="./app/test_data/items")
+		# Test
+		for f in glob("./app/test_data/listings/*.json"):
+			Universalis().fetch_and_process_item_listings("", json_file=f)
+		self.assertEqual(9, len(Listing.objects.all()))
+
+
 
 
 

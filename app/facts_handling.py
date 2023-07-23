@@ -235,15 +235,6 @@ def compute_item_facts():
 # MAKE A CRAFTPRICING OBJECT NOW?
 
 
-		
-
-				
-
-
-
-"""
-	return
-
 	marketable_items = Item.objects.filter(is_marketable=True)
 
 	for item in marketable_items:
@@ -421,4 +412,3 @@ def compute_item_facts():
 
 
 		# Determine best-build-prices
-"""
