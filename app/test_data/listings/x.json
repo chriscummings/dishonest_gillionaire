@@ -1,31 +1,131 @@
 {
     "itemIDs": [ 8, 9 ],
     "items": {
-      "8": {
-        "itemID": 8,
-        "lastUploadTime": 1688835161473,
-        "listings": [
-          {
-            "lastReviewTime": 1688813903,
-            "pricePerUnit": 47,
-            "quantity": 7000,
-            "stainID": 0,
-            "worldName": "Famfrit",
-            "worldID": 35,
-            "creatorName": "",
-            "creatorID": null,
-            "hq": false,
-            "isCrafted": false,
-            "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
-            "materia": [],
-            "onMannequin": false,
-            "retainerCity": 1,
-            "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
-            "retainerName": "Retainerbae",
-            "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
-            "total": 323400
-          }
-        ]
+    "7":{
+      "itemID": 7,
+      "lastUploadTime": 1688835161473,
+      "listings": [
+        {
+          "lastReviewTime": 1688813903,
+          "pricePerUnit": 5,
+          "quantity": 20,
+          "stainID": 0,
+          "worldName": "Malboro",
+          "creatorName": "",
+          "creatorID": null,
+          "hq": false,
+          "isCrafted": false,
+          "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+          "materia": [],
+          "onMannequin": false,
+          "retainerCity": 1,
+          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+          "retainerName": "Retainerbae",
+          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+          "total": 100
+        },
+        {
+          "lastReviewTime": 1688813903,
+          "pricePerUnit": 99,
+          "quantity": 20,
+          "stainID": 0,
+          "worldName": "Mateus",
+          "creatorName": "",
+          "creatorID": null,
+          "hq": false,
+          "isCrafted": false,
+          "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+          "materia": [],
+          "onMannequin": false,
+          "retainerCity": 1,
+          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+          "retainerName": "Retainerbae",
+          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+          "total": 1980
+        },
+        {
+          "lastReviewTime": 1688813903,
+          "pricePerUnit": 10,
+          "quantity": 20,
+          "stainID": 0,
+          "worldName": "Seraph",
+          "creatorName": "",
+          "creatorID": null,
+          "hq": false,
+          "isCrafted": false,
+          "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+          "materia": [],
+          "onMannequin": false,
+          "retainerCity": 1,
+          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+          "retainerName": "Retainerbae",
+          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+          "total": 200
+        }                
+      ]
+    },
+    "5518":{
+      "itemID": 5518,
+      "lastUploadTime": 1688835161473,
+      "listings": [
+        {
+          "lastReviewTime": 1688813903,
+          "pricePerUnit": 10,
+          "quantity": 20,
+          "stainID": 0,
+          "worldName": "Malboro",
+          "creatorName": "",
+          "creatorID": null,
+          "hq": false,
+          "isCrafted": false,
+          "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+          "materia": [],
+          "onMannequin": false,
+          "retainerCity": 1,
+          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+          "retainerName": "Retainerbae",
+          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+          "total": 200
+        },
+        {
+          "lastReviewTime": 1688813903,
+          "pricePerUnit": 7,
+          "quantity": 20,
+          "stainID": 0,
+          "worldName": "Coeurl",
+          "creatorName": "",
+          "creatorID": null,
+          "hq": false,
+          "isCrafted": false,
+          "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+          "materia": [],
+          "onMannequin": false,
+          "retainerCity": 1,
+          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+          "retainerName": "Retainerbae",
+          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+          "total": 140
+        },
+        {
+          "lastReviewTime": 1688813903,
+          "pricePerUnit": 17,
+          "quantity": 20,
+          "stainID": 0,
+          "worldName": "Excalibur",
+          "creatorName": "",
+          "creatorID": null,
+          "hq": false,
+          "isCrafted": false,
+          "listingID": "02e6f4096b015350d6f4390c5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+          "materia": [],
+          "onMannequin": false,
+          "retainerCity": 1,
+          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+          "retainerName": "Retainerbae",
+          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+          "total": 140
+        }
+      ]    
     }
 }
 }
