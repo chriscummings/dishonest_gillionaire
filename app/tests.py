@@ -25,7 +25,7 @@ class ApiHandlingTest(TestCase):
 		# Test
 		for f in glob("./app/test_data/listings/*.json"):
 			Universalis().fetch_and_process_item_listings("", json_file=f)
-		self.assertEqual(3, len(Listing.objects.all()))
+		self.assertEqual(6, len(Listing.objects.all()))
 
 	def test_fetch_and_process_item_sales(self):
 		# Seed locations
