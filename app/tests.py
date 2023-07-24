@@ -51,6 +51,9 @@ class ApiHandlingTest(TestCase):
 
 		compute_item_facts()
 
+		#self.assertEqual(9, len(BestCraftPricing.objects.all()))
+		self.assertEqual(9, len(WorldItemFact.objects.all()))
+		self.assertEqual(9, len(BestPurchasePricing.objects.all()))
 
 
 '''
