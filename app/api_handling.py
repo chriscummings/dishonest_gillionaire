@@ -482,7 +482,7 @@ class XivApi():
 
 			item.save()
 
-			print(item)
+			#print(item)
 
 	def _create_ingredient(self, recipe, item, count):
 		ingredient = Ingredient()
@@ -527,7 +527,7 @@ class XivApi():
 				recipe.result_amount = r['AmountResult']
 				recipe.save()
 
-				print(recipe)
+				#print(recipe)
 
 				# There are 10 (0-9) recipe ingredients max. There are always "static" keys for each of the 10 possible ingredients.
 				for i in range(0,10):
