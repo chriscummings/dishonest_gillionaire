@@ -39,21 +39,23 @@ class ApiHandlingTest(TestCase):
 		self.assertEqual(9, len(Listing.objects.all()))
 
 	def test_facts_handling(self):
-		# Seed locations
+		# Seed
 		seed_region_dc_world()
-		# Seed items
 		XivApi().ingest_item_details(src_dir="./app/test_data/items")
+		XivApi().ingest_recipe_details(src_dir="./app/test_data/recipes")
+		
 		# Seed sales & listings
 		for f in glob("./app/test_data/sales/*.json"):
 			Universalis().fetch_and_process_item_sales("", json_file=f)
 		for f in glob("./app/test_data/listings/*.json"):
 			Universalis().fetch_and_process_item_listings("", json_file=f)
 
+
 		compute_item_facts()
 
 		self.assertEqual(len(Item.objects.all())*len(World.objects.all()), len(WorldItemFact.objects.all()))
 		self.assertEqual(len(Item.objects.all())*len(World.objects.all()), len(BestPurchasePricing.objects.all()))
-		self.assertEqual(9, len(BestCraftPricing.objects.all()))
+		self.assertEqual(len(World.objects.all())*len(Recipe.objects.all()), len(BestCraftPricing.objects.all()))
 
 
 '''

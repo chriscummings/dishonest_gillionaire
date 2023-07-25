@@ -18,6 +18,9 @@ def _to_world_dict(collection):
 	return world_dict
 
 def _compute_listings_facts(collection):
+
+	# should sellers counts be a set? This does list the sellers count but not the listings count...
+
 	hq_listings = []
 	hq_sellers = set()
 	nq_listings = []
@@ -32,6 +35,7 @@ def _compute_listings_facts(collection):
 			nq_sellers.add(listing.retainer_guid)
 
 	listings_fact = {
+		# NQ
 		'nq_list_mean': None,
 		'nq_list_median': None,
 		'nq_list_mode': None,
@@ -39,7 +43,7 @@ def _compute_listings_facts(collection):
 		'nq_list_low': None,
 		'nq_list_count': None,
 		'nq_sellers_count': None,
-
+		# HQ
 		'hq_list_mean': None,
 		'hq_list_median': None,
 		'hq_list_mode': None,
@@ -76,6 +80,7 @@ def _compute_sales_facts(collection):
 	# TODO: get last sold price for hq and nq, sort and then just grab last items form hq&nq_sales lists.
 	collection.sort(key=lambda x: x.sold_at)
 
+	# Seperate HQ & NQ
 	for sale in collection:
 		if sale.hq:
 			hq_sales.append(sale.price_per_unit)
@@ -83,6 +88,7 @@ def _compute_sales_facts(collection):
 			nq_sales.append(sale.price_per_unit)
 
 	sales_fact = {
+		# NQ
 		'nq_sold_mean': None,
 		'nq_sold_median': None,
 		'nq_sold_mode': None,
@@ -90,6 +96,7 @@ def _compute_sales_facts(collection):
 		'nq_sold_low': None,
 		'nq_sold_count': None,
 		'nq_last_sold_value': None,
+		# HQ
 		'hq_sold_mean': None,
 		'hq_sold_median': None,
 		'hq_sold_mode': None,
@@ -127,55 +134,59 @@ def compute_item_facts():
 
 	for item in marketable_items:
 
+		# Get recent related sales & listings & sort by world
 		hours_ago = datetime.now() - timedelta(hours = HOURS_AGO_TO_UPDATE)
-
 		sales = Sale.objects.filter(updated_at__gte=hours_ago, item_id=item.id)
 		sales_by_world = _to_world_dict(sales)
-
 		listings = Listing.objects.filter(updated_at__gte=hours_ago, item_id=item.id)
 		listings_by_world = _to_world_dict(listings)
 
 		# Generate Facts -----------------------------------------------------
 		new_facts = []
+
 		for world in World.objects.all():
 			fact = WorldItemFact(calculated_at=datetime.now())
+
 			if world.name in sales_by_world.keys():
 				sales_facts = _compute_sales_facts(sales_by_world[world.name])
 
+				# NQ
 				fact.nq_sold_mean = sales_facts['nq_sold_mean']
 				fact.nq_sold_median = sales_facts['nq_sold_median']
 				fact.nq_sold_mode = sales_facts['nq_sold_mode']
 				fact.nq_sold_high = sales_facts['nq_sold_high']
 				fact.nq_sold_low = sales_facts['nq_sold_low']
 				fact.nq_sold_count = sales_facts['nq_sold_count']
+				fact.nq_last_sold_value = sales_facts['nq_last_sold_value']
+
+				# HQ
 				fact.hq_sold_mean = sales_facts['hq_sold_mean']
 				fact.hq_sold_median = sales_facts['hq_sold_median']
 				fact.hq_sold_mode = sales_facts['hq_sold_mode']
 				fact.hq_sold_high = sales_facts['hq_sold_high']
 				fact.hq_sold_low = sales_facts['hq_sold_low']
 				fact.hq_sold_count = sales_facts['hq_sold_count']
-
 				fact.hq_last_sold_value = sales_facts['hq_last_sold_value']
-				fact.nq_last_sold_value = sales_facts['nq_last_sold_value']
 
 			if world.name in listings_by_world.keys():
 				listings_facts = _compute_listings_facts(listings_by_world[world.name])
 
+				# NQ
 				fact.nq_list_mean = listings_facts['nq_list_mean']
 				fact.nq_list_median = listings_facts['nq_list_median']
 				fact.nq_list_mode = listings_facts['nq_list_mode']
 				fact.nq_list_high = listings_facts['nq_list_high']
 				fact.nq_list_low = listings_facts['nq_list_low'] #
 				fact.nq_list_count = listings_facts['nq_list_count'] #
+				fact.nq_sellers_count = listings_facts['nq_sellers_count']
+				# HQ
 				fact.hq_list_mean = listings_facts['hq_list_mean']
 				fact.hq_list_median = listings_facts['hq_list_median']
 				fact.hq_list_mode = listings_facts['hq_list_mode']
 				fact.hq_list_high = listings_facts['hq_list_high']
 				fact.hq_list_low = listings_facts['hq_list_low'] #
 				fact.hq_list_count = listings_facts['hq_list_count'] #
-
 				fact.hq_sellers_count = listings_facts['hq_sellers_count']
-				fact.nq_sellers_count = listings_facts['nq_sellers_count']
 
 			fact.item = item
 			fact.world = world
@@ -208,8 +219,10 @@ def compute_item_facts():
 			best_regional_hq_price = best_hq_pricing.hq_list_low
 			best_regional_hq_world = best_hq_pricing.world
 
-
+		##
+		# Handle home-world-dependent numbers
 		for home_world in World.objects.all():
+
 			datacenter = home_world.data_center
 			dc_worlds = list(filter(lambda fact: fact.datacenter == datacenter, new_facts))
 
@@ -235,7 +248,7 @@ def compute_item_facts():
 				best_hq_listing_in_dc_price = best_hq_pricing.hq_list_low
 				best_hq_listing_in_dc_world = best_hq_pricing.world
 
-
+			# what if none??
 			homeworld_fact = list(filter(lambda x: x.world == home_world, new_facts))[0]
 
 			##
@@ -246,7 +259,10 @@ def compute_item_facts():
 			# Best HQ price on homeworld
 			best_home_hq_price = homeworld_fact.hq_list_low
 
-			# generate BestPurchasePricing
+
+
+
+			# generate BestPurchasePricing -------------------------------
 			best_purchase_pricing = BestPurchasePricing()
 			best_purchase_pricing.item = item
 			best_purchase_pricing.home = home_world
@@ -299,8 +315,27 @@ def compute_item_facts():
 			best_purchase_pricing.save()
 
 
-		# Determine best-build-prices
+	# To-Craft Pricing ----------------------------
+	for recipe in Recipe.objects.all().order_by('level'):
+		dataz = {}
 
+		for ingredient in recipe.ingredients.all():
+			count = ingredient.count
+			item = ingredient.item
+
+			for world in World.objects.all():
+
+				#print(f"{count} {item} {world}")
+
+				best_world_price = BestPurchasePricing.objects.filter(item_id=item, home_id=world).last()
+		
+				if not best_world_price:
+					# FIXME: handle this..
+					print(f"not found {item}")
+					continue
+
+				if world.name not in dataz.keys():
+					dataz[world.name] = {'ingredients':[]}
 
 
 	# {
@@ -316,29 +351,6 @@ def compute_item_facts():
 	# 		}]
 	# 	},
 	# }
-
-	for recipe in Recipe.objects.all().order_by('level'):
-
-		#print(recipe)
-
-		dataz = {}
-
-		for ingredient in recipe.ingredients.all():
-			count = ingredient.count
-			item = ingredient.item
-
-			for world in World.objects.all():
-
-				#print(f"{count} {item} {world}")
-
-				best_world_price = BestPurchasePricing.objects.filter(item_id=item, home_id=world).last()
-		
-				if not best_world_price:
-					print(f"not found {item}")
-					continue
-
-				if world.name not in dataz.keys():
-					dataz[world.name] = {'ingredients':[]}
 
 				dataz[world.name]['ingredients'].append({
 					'item':item.guid,
