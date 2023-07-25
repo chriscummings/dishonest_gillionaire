@@ -19,7 +19,7 @@ def _to_world_dict(collection):
 
 def _compute_listings_facts(collection):
 
-	# should sellers counts be a set? This does list the sellers count but not the listings count...
+	# should sellers counts be a set? This does list the unique sellers count but not the listings count...
 
 	hq_listings = []
 	hq_sellers = set()

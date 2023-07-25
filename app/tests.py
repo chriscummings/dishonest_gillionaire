@@ -43,7 +43,7 @@ class ApiHandlingTest(TestCase):
 		seed_region_dc_world()
 		XivApi().ingest_item_details(src_dir="./app/test_data/items")
 		XivApi().ingest_recipe_details(src_dir="./app/test_data/recipes")
-		
+
 		# Seed sales & listings
 		for f in glob("./app/test_data/sales/*.json"):
 			Universalis().fetch_and_process_item_sales("", json_file=f)

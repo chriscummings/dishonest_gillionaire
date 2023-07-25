@@ -22,7 +22,6 @@ class Item(models.Model):
 	game_search_category             = models.TextField()
 	universalis_unresolved           = models.BooleanField(default=False)
 
-
 	northamerica_listings_updated_at = models.DateTimeField(null=True)
 	northamerica_sales_updated_at    = models.DateTimeField(null=True)
 
@@ -30,8 +29,6 @@ class Item(models.Model):
 	listsings_updated_at = models.DateTimeField(null=True)
 	sales_updated_at = models.DateTimeField(null=True)
 	facts_updated_at = models.DateTimeField(null=True)
-
-
 
 	class Meta:
 		indexes = [models.Index(fields=['guid'])]
@@ -63,8 +60,6 @@ class Item(models.Model):
 		summary['game_ui_category'] = self.game_ui_category
 		summary['vendor_price'] = self.vendor_price
 		summary['is_marketable'] = self.is_marketable
-
-
 
 		# TODO: get best price, create key either way
 
@@ -242,7 +237,6 @@ class BestPurchasePricing(models.Model):
 
 	def __str__(self):
 		return f'HQ {self.home_hq_list_low} {self.home.name} / {self.best_hq_listing_in_datacenter_price} {self.best_hq_listing_in_datacenter_world} / {self.best_hq_listing_in_region_price} {self.best_hq_listing_in_region_world} | NQ {self.home_hq_list_low} {self.home} / {self.best_nq_listing_in_datacenter_price} {self.best_nq_listing_in_datacenter_world} / {self.best_nq_listing_in_region_price} {self.best_nq_listing_in_region_world}'
-
 
 	# home competition
 	home_nq_sold_mean = models.FloatField(null=True) 
