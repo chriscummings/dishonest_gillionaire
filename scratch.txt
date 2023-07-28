@@ -1,10 +1,14 @@
 To-Craft Pricing:
 
+--Infrequent updates:
 0) ingest item data and recipe structure
+--Apply basic market statistics
 1) apply each worlds market data (listings/sales) for each item
 2) summarize each item's market data to statistics with a timestamp
+--Apply direct purchase pricing
 3) from each world, for each item
 	compute best purchase price for homeworld,dc,region
+--Apply to-craft pricing
 4) for recipe ordered by level
 	for ingredient
 		for world
@@ -25,32 +29,33 @@ To-Craft Pricing:
 		}
 	}
 
-	for ingredient-key:
-		filter world/dc/region
-		filter hq/nq
-		sort by price_per
+	for world:
+		for ingredient-key:
+			filter world/dc/region
+			filter hq/nq
+			sort by price_per
 
-	CraftList
-	item:
-	recipe:
-	world:
-	quality:
-	home_price:
-	home_price_partial:Bool
-	dc_price:
-	dc_price_partial:Bool
-	reg_price:
-	reg_price_partial:Bool
-	dc_shopping_list: []
-	reg_shopping_list: [
-		{
-			world:
-			item_guid:
-			item_name:
-			quantity:
-			price_per:
-		}
-	]
+		CraftList
+		item:
+		recipe:
+		world:
+		quality:
+		home_price:
+		home_price_partial:Bool
+		dc_price:
+		dc_price_partial:Bool
+		reg_price:
+		reg_price_partial:Bool
+		dc_shopping_list: []
+		reg_shopping_list: [
+			{
+				world:
+				item_guid:
+				item_name:
+				quantity:
+				price_per:
+			}
+		]
 
 
 # ======================================================================
