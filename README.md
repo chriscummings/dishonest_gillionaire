@@ -48,3 +48,31 @@ A FFXIV market data tool.
 * https://raw.githubusercontent.com/ffxiv-teamcraft/ffxiv-teamcraft/master/apps/client/src/assets/data/items.json
 * https://raw.githubusercontent.com/xivapi/ffxiv-datamining/master/csv/Item.csv
 * https://ffxiv.pf-n.co/ - lulu's tools
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,18 +1,59 @@
+To-Craft Pricing:
+
+0) ingest item data and recipe structure
+1) apply each worlds market data (listings/sales) for each item
+2) summarize each item's market data to statistics with a timestamp
+3) from each world, for each item
+	compute best purchase price for homeworld,dc,region
+4) for recipe ordered by level
+	for ingredient
+		for world
+			get item-world best purchasing price
+	
+	{
+		ingredient_item_id: {
+			count:0,
+			sources:[
+				{
+					world:Malboro,
+					quality:hq/nq,
+					dc:crystal,
+					region:na,
+					price_per:666
+				}
+			]
+		}
+	}
+
+	for ingredient-key:
+		filter world/dc/region
+		filter hq/nq
+		sort by price_per
+
+	CraftList
+	item:
+	recipe:
+	world:
+	quality:
+	home_price:
+	home_price_partial:Bool
+	dc_price:
+	dc_price_partial:Bool
+	reg_price:
+	reg_price_partial:Bool
+	dc_shopping_list: []
+	reg_shopping_list: [
+		{
+			world:
+			item_guid:
+			item_name:
+			quantity:
+			price_per:
+		}
+	]
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ======================================================================
 
 
 
