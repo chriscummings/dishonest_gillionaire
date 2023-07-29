@@ -1,18 +1,33 @@
 To-Craft Pricing:
 
 --Infrequent updates:
+
 0) ingest item data and recipe structure
+
 --Apply basic market statistics
+
 1) apply each worlds market data (listings/sales) for each item
-2) summarize each item's market data to statistics with a timestamp
---Apply direct purchase pricing
-3) from each world, for each item
-	compute best purchase price for homeworld,dc,region
+
+
+n) summarize each item's market data to statistics with a timestamp & detrmine best-purchase_pricing
+
+	for marketable items
+		get recent sales & listings
+		for world
+			create "fact"
+		determine cheapest in region
+		for world
+			detrmine cheapest in dc
+			determine home price
+			create BestPurchasePricing
+
 --Apply to-craft pricing
-4) for recipe ordered by level
+
+n) for recipe ordered by level
 	for ingredient
 		for world
-			get item-world best purchasing price
+			xxxget item-world best purchasing price
+			get WorldItemFact
 	
 	{
 		ingredient_item_id: {

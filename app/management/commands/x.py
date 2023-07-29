@@ -54,7 +54,7 @@ class Command(BaseCommand):
 			handler.fetch_listings()
 			print("Going to sleep...")
 
-			compute_item_facts()
+			summarize_market_stats()
 			print("Going to sleep...")
 
 			time.sleep(60 * min_sleep)

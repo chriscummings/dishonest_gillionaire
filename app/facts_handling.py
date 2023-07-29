@@ -126,76 +126,79 @@ def _compute_sales_facts(collection):
 
 	return sales_fact
 
+def _generate_item_market_stats(item, sales, listings):
+	"""
+	"""
+	new_facts = []
+
+	sales_by_world = _to_world_dict(sales)
+	listings_by_world = _to_world_dict(listings)
+
+	for world in World.objects.all():
+		fact = WorldItemFact(calculated_at=datetime.now())
+
+		if world.name in sales_by_world.keys():
+			sales_facts = _compute_sales_facts(sales_by_world[world.name])
+
+			# NQ
+			fact.nq_sold_mean = sales_facts['nq_sold_mean']
+			fact.nq_sold_median = sales_facts['nq_sold_median']
+			fact.nq_sold_mode = sales_facts['nq_sold_mode']
+			fact.nq_sold_high = sales_facts['nq_sold_high']
+			fact.nq_sold_low = sales_facts['nq_sold_low']
+			fact.nq_sold_count = sales_facts['nq_sold_count']
+			fact.nq_last_sold_value = sales_facts['nq_last_sold_value']
+
+			# HQ
+			fact.hq_sold_mean = sales_facts['hq_sold_mean']
+			fact.hq_sold_median = sales_facts['hq_sold_median']
+			fact.hq_sold_mode = sales_facts['hq_sold_mode']
+			fact.hq_sold_high = sales_facts['hq_sold_high']
+			fact.hq_sold_low = sales_facts['hq_sold_low']
+			fact.hq_sold_count = sales_facts['hq_sold_count']
+			fact.hq_last_sold_value = sales_facts['hq_last_sold_value']
+
+		if world.name in listings_by_world.keys():
+			listings_facts = _compute_listings_facts(listings_by_world[world.name])
+
+			# NQ
+			fact.nq_list_mean = listings_facts['nq_list_mean']
+			fact.nq_list_median = listings_facts['nq_list_median']
+			fact.nq_list_mode = listings_facts['nq_list_mode']
+			fact.nq_list_high = listings_facts['nq_list_high']
+			fact.nq_list_low = listings_facts['nq_list_low'] #
+			fact.nq_list_count = listings_facts['nq_list_count'] #
+			fact.nq_sellers_count = listings_facts['nq_sellers_count']
+			# HQ
+			fact.hq_list_mean = listings_facts['hq_list_mean']
+			fact.hq_list_median = listings_facts['hq_list_median']
+			fact.hq_list_mode = listings_facts['hq_list_mode']
+			fact.hq_list_high = listings_facts['hq_list_high']
+			fact.hq_list_low = listings_facts['hq_list_low'] #
+			fact.hq_list_count = listings_facts['hq_list_count'] #
+			fact.hq_sellers_count = listings_facts['hq_sellers_count']
+
+		fact.item = item
+		fact.world = world
+		fact.datacenter = world.data_center
+
+		fact.save()
+		new_facts.append(fact)
+
+	return new_facts
+
 @captute_runtime
-def compute_item_facts():
+def summarize_market_stats():
 
-
-	marketable_items = Item.objects.filter(is_marketable=True)
-
-	for item in marketable_items:
+	for item in Item.objects.filter(is_marketable=True):
 
 		# Get recent related sales & listings & sort by world
 		hours_ago = datetime.now() - timedelta(hours = HOURS_AGO_TO_UPDATE)
+
 		sales = Sale.objects.filter(updated_at__gte=hours_ago, item_id=item.id)
-		sales_by_world = _to_world_dict(sales)
 		listings = Listing.objects.filter(updated_at__gte=hours_ago, item_id=item.id)
-		listings_by_world = _to_world_dict(listings)
 
-		# Generate Facts -----------------------------------------------------
-		new_facts = []
-
-		for world in World.objects.all():
-			fact = WorldItemFact(calculated_at=datetime.now())
-
-			if world.name in sales_by_world.keys():
-				sales_facts = _compute_sales_facts(sales_by_world[world.name])
-
-				# NQ
-				fact.nq_sold_mean = sales_facts['nq_sold_mean']
-				fact.nq_sold_median = sales_facts['nq_sold_median']
-				fact.nq_sold_mode = sales_facts['nq_sold_mode']
-				fact.nq_sold_high = sales_facts['nq_sold_high']
-				fact.nq_sold_low = sales_facts['nq_sold_low']
-				fact.nq_sold_count = sales_facts['nq_sold_count']
-				fact.nq_last_sold_value = sales_facts['nq_last_sold_value']
-
-				# HQ
-				fact.hq_sold_mean = sales_facts['hq_sold_mean']
-				fact.hq_sold_median = sales_facts['hq_sold_median']
-				fact.hq_sold_mode = sales_facts['hq_sold_mode']
-				fact.hq_sold_high = sales_facts['hq_sold_high']
-				fact.hq_sold_low = sales_facts['hq_sold_low']
-				fact.hq_sold_count = sales_facts['hq_sold_count']
-				fact.hq_last_sold_value = sales_facts['hq_last_sold_value']
-
-			if world.name in listings_by_world.keys():
-				listings_facts = _compute_listings_facts(listings_by_world[world.name])
-
-				# NQ
-				fact.nq_list_mean = listings_facts['nq_list_mean']
-				fact.nq_list_median = listings_facts['nq_list_median']
-				fact.nq_list_mode = listings_facts['nq_list_mode']
-				fact.nq_list_high = listings_facts['nq_list_high']
-				fact.nq_list_low = listings_facts['nq_list_low'] #
-				fact.nq_list_count = listings_facts['nq_list_count'] #
-				fact.nq_sellers_count = listings_facts['nq_sellers_count']
-				# HQ
-				fact.hq_list_mean = listings_facts['hq_list_mean']
-				fact.hq_list_median = listings_facts['hq_list_median']
-				fact.hq_list_mode = listings_facts['hq_list_mode']
-				fact.hq_list_high = listings_facts['hq_list_high']
-				fact.hq_list_low = listings_facts['hq_list_low'] #
-				fact.hq_list_count = listings_facts['hq_list_count'] #
-				fact.hq_sellers_count = listings_facts['hq_sellers_count']
-
-			fact.item = item
-			fact.world = world
-			fact.datacenter = world.data_center
-
-			fact.save()
-			new_facts.append(fact)
-
-		# Determine best-purchase-prices -------------------------------------
+		new_facts = _generate_item_market_stats(item, sales, listings)
 
 		##
 		# Best NQ price in region (homeworld doesn't matter)
@@ -314,113 +317,77 @@ def compute_item_facts():
 
 			best_purchase_pricing.save()
 
-
-	# To-Craft Pricing ----------------------------
+@captute_runtime
+def derive_to_craft_pricing():
 	for recipe in Recipe.objects.all().order_by('level'):
-		dataz = {}
+
+
+
+		# [{
+		# 	ingredient_item_id: {
+		# 		'count':0,
+		# 		'sources':[
+		# 			{
+		# 				'world': 'malboro',
+		# 				'datacenter': 'crystal',
+		# 				'region': 'na',
+		# 				'price_per': 777,
+		# 				'quality': 'nq'
+		# 			}
+		# 		]
+		# 	}
+		# }]
+		material_sources = {}
 
 		for ingredient in recipe.ingredients.all():
 			count = ingredient.count
 			item = ingredient.item
 
+			# Create source 'entry' for ingredient
+			if item.guid not in material_sources.keys():
+				material_sources[item.guid] = {
+					'count': count,
+					'sources': []
+				}
+
 			for world in World.objects.all():
+				# best_world_price = BestPurchasePricing.objects.filter(item_id=item, home_id=world).last()
 
-				#print(f"{count} {item} {world}")
+				fact = WorldItemFact.objects.filter(item_id=item, world=world).last()
 
-				best_world_price = BestPurchasePricing.objects.filter(item_id=item, home_id=world).last()
-		
-				if not best_world_price:
+				if not fact:
 					# FIXME: handle this..
 					print(f"not found {item}")
 					continue
 
-				if world.name not in dataz.keys():
-					dataz[world.name] = {'ingredients':[]}
+				if fact.nq_list_count:
+					material_sources[item.guid]['sources'].append({
+						'world': fact.world.name,
+						'datacenter': fact.datacenter.name,
+						'region': 'na', # FIXME: hardcoded?!
+						'price_per': fact.nq_list_low,
+						'quality':'nq'
+					})
+
+				if fact.hq_list_count:
+					material_sources[item.guid]['sources'].append({
+						'world': fact.world.name,
+						'datacenter': fact.datacenter.name,
+						'region': 'na', # FIXME: hardcoded?!
+						'price_per': fact.hq_list_low,
+						'quality':'hq'
+					})
+
+		print(material_sources)
+
+		for world in World.objects.all():
+			for item_guid in material_sources.keys():
+
+				sources = material_sources[item_guid]['sources']
 
 
-	# {
-	# 	'world':{
-	# 		'ingredients':[{
-	# 			'item_id':2341,
-	# 			'nq_low_listing_region_price':none,
-	# 			'nq_low_listing_dc_price':none,
-	# 			'nq_low_listing_home_price':none,
-	# 			'hq_low_listing_region_price':none,
-	# 			'hq_low_listing_dc_price':none,
-	# 			'hq_low_listing_home_price':none,
-	# 		}]
-	# 	},
-	# }
 
-				dataz[world.name]['ingredients'].append({
-					'item':item.guid,
-					'count':count,
-					'nq_low_listing_region_price':best_world_price.best_nq_listing_in_region_price,
-					'nq_low_listing_dc_price':best_world_price.best_nq_listing_in_datacenter_price,
-					'nq_low_listing_home_price':best_world_price.home_nq_list_low,
-					'hq_low_listing_region_price':best_world_price.best_hq_listing_in_region_price,
-					'hq_low_listing_dc_price':best_world_price.best_hq_listing_in_datacenter_price,
-					'hq_low_listing_home_price':best_world_price.home_hq_sold_low,					
-				})
-		
-		#p(dataz)
 
-		for world_name in dataz.keys():
 
-			nq_home_craft_price = 0
-			nq_home_craft_price_is_partial = True
-			nq_dc_craft_price = 0
-			nq_dc_craft_price_is_partial = True
-			nq_region_craft_price = 0
-			nq_region_craft_price_is_partial = True
-			#
-			hq_home_craft_price = 0
-			hq_home_craft_price_is_partial = True
-			hq_dc_craft_price = 0
-			hq_dc_craft_price_is_partial = True
-			hq_region_craft_price = 0
-			hq_region_craft_price_is_partial = True
-
-			for ingredient in dataz[world_name]['ingredients']:
-				nq_home_craft_price += (ingredient['nq_low_listing_home_price'] or 0) * count
-				nq_dc_craft_price += (ingredient['nq_low_listing_dc_price'] or 0) * count
-				nq_region_craft_price += (ingredient['nq_low_listing_region_price'] or 0) * count
-				hq_home_craft_price += (ingredient['hq_low_listing_home_price'] or 0) * count
-				hq_dc_craft_price += (ingredient['hq_low_listing_dc_price'] or 0) * count
-				hq_region_craft_price += (ingredient['hq_low_listing_region_price'] or 0) * count
-
-			if nq_home_craft_price:nq_home_craft_price_is_partial = False
-			if nq_dc_craft_price:nq_dc_craft_price_is_partial = False
-			if nq_region_craft_price:nq_region_craft_price_is_partial = False
-			if hq_home_craft_price:hq_home_craft_price_is_partial = False
-			if hq_dc_craft_price:hq_dc_craft_price_is_partial = False
-			if hq_region_craft_price:hq_region_craft_price_is_partial = False
-
-			craft_price = BestCraftPricing()
-
-			world = World.objects.filter(name=world_name).first()
-
-			craft_price.item = recipe.item
-			craft_price.home = world
-			craft_price.datacenter = world.data_center
-			craft_price.region = world.data_center.region
-			craft_price.nq_home_craft_price = nq_home_craft_price
-			craft_price.nq_home_craft_price_is_partial = nq_home_craft_price_is_partial
-			craft_price.nq_dc_craft_price = nq_dc_craft_price
-			craft_price.nq_dc_craft_price_is_partial = nq_dc_craft_price_is_partial
-			craft_price.nq_region_craft_price = nq_region_craft_price
-			craft_price.nq_region_craft_price_is_partial = nq_region_craft_price_is_partial
-			craft_price.hq_home_craft_price = hq_home_craft_price
-			craft_price.hq_home_craft_price_is_partial = hq_home_craft_price_is_partial
-			craft_price.hq_dc_craft_price = hq_dc_craft_price
-			craft_price.hq_dc_craft_price_is_partial = hq_dc_craft_price_is_partial
-			craft_price.hq_region_craft_price = hq_region_craft_price
-			craft_price.hq_region_craft_price_is_partial = hq_region_craft_price_is_partial
-
-			#p(craft_price)
-
-			craft_price.save()
-
-			# return
 
 

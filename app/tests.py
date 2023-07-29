@@ -50,7 +50,8 @@ class ApiHandlingTest(TestCase):
 		for f in glob("./app/test_data/listings/*.json"):
 			Universalis().fetch_and_process_item_listings("", json_file=f)
 
-		compute_item_facts()
+		summarize_market_stats()
+		derive_to_craft_pricing()
 
 		self.assertEqual(len(Item.objects.all())*len(World.objects.all()), len(WorldItemFact.objects.all()))
 		self.assertEqual(len(Item.objects.all())*len(World.objects.all()), len(BestPurchasePricing.objects.all()))

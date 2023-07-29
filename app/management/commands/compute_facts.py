@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from app.facts_handling import compute_item_facts
+from app.facts_handling import summarize_market_stats
 
 
 class Command(BaseCommand):
@@ -8,4 +8,4 @@ class Command(BaseCommand):
 	help = ''
 
 	def handle(self, *args, **options):
-		compute_item_facts()
+		summarize_market_stats()
