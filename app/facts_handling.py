@@ -317,15 +317,35 @@ def summarize_market_stats():
 
 			best_purchase_pricing.save()
 
+
+						'world': fact.world.name,
+						'datacenter': fact.datacenter.name,
+						'region': 'na', # FIXME: hardcoded?!
+						'price_per': fact.nq_list_low,
+						'quality':'nq'
+
+
+def _create_to_buy_json(objs):
+	x = []
+	for obj in objs:
+		x.append({
+			'world':obj['world'],
+			'item_guid': obj[],
+			'item_name': obj[],
+			'quantity': obj[],
+			'price_per': obj['price_per']
+		})
+	return x
+
 @captute_runtime
 def derive_to_craft_pricing():
 	for recipe in Recipe.objects.all().order_by('level'):
 
-
-
+		## EXAMPLE:
 		# [{
 		# 	ingredient_item_id: {
 		# 		'count':0,
+		
 		# 		'sources':[
 		# 			{
 		# 				'world': 'malboro',
@@ -347,12 +367,12 @@ def derive_to_craft_pricing():
 			if item.guid not in material_sources.keys():
 				material_sources[item.guid] = {
 					'count': count,
+					'name': item.name,
+					'guid': item.guid,
 					'sources': []
 				}
 
 			for world in World.objects.all():
-				# best_world_price = BestPurchasePricing.objects.filter(item_id=item, home_id=world).last()
-
 				fact = WorldItemFact.objects.filter(item_id=item, world=world).last()
 
 				if not fact:
@@ -377,10 +397,6 @@ def derive_to_craft_pricing():
 						'price_per': fact.hq_list_low,
 						'quality':'hq'
 					})
-
-		# print(material_sources)
-
-
 
 		for world in World.objects.all():
 			nq_home_list = {'partial':False, 'materials':[]}
@@ -451,24 +467,39 @@ def derive_to_craft_pricing():
 				else:
 					hq_reg_list['materials'].append(s[0])
 
-
+			# NQ
 			craftlist = CraftList()
 			craftlist.item = recipe.item
 			craftlist.recipe = recipe
 			craftlist.homeworld = world
 			craftlist.quality = 'nq'
-			craftlist.home_price = 0             #####
-			craftlist.home_price_partial = True     #####
-			craftlist.dc_price = 0     #####
-			craftlist.dc_price_partial = True     #####
-			craftlist.reg_price = 0     #####
-			craftlist.reg_price_partial = True     #####
-			craftlist.dc_shopping_list = ''     #####
-			craftlist.reg_shopping_list = ''     #####
+			craftlist.home_price = sum(item['price_per'] for item in nq_home_list['materials'])
+			craftlist.home_price_partial = nq_home_list['partial']
+			craftlist.dc_price = sum(item['price_per'] for item in nq_dc_list['materials'])
+			craftlist.dc_price_partial = nq_dc_list['partial']
+			craftlist.reg_price = sum(item['price_per'] for item in nq_reg_list['materials'])
+			craftlist.reg_price_partial = nq_reg_list['partial']
+			craftlist.dc_shopping_list = _create_to_buy_json(nq_dc_list['materials'])
+			craftlist.reg_shopping_list = _create_to_buy_json(nq_reg_list['materials'])
 			craftlist.save()
 
-			# create hq craftlist
-			raise Exception('create hq craftlist')
+			# HQ
+			craftlist = CraftList()
+			craftlist.item = recipe.item
+			craftlist.recipe = recipe
+			craftlist.homeworld = world
+			craftlist.quality = 'hq'
+			craftlist.home_price = sum(item['price_per'] for item in hq_home_list['materials'])
+			craftlist.home_price_partial = hq_home_list['partial']
+			craftlist.dc_price = sum(item['price_per'] for item in hq_dc_list['materials'])
+			craftlist.dc_price_partial = hq_dc_list['partial']
+			craftlist.reg_price = sum(item['price_per'] for item in hq_reg_list['materials'])
+			craftlist.reg_price_partial = hq_reg_list['partial']
+			craftlist.dc_shopping_list = _create_to_buy_json(hq_dc_list['materials'])
+			craftlist.reg_shopping_list = _create_to_buy_json(hq_reg_list['materials'])
+			craftlist.save()
+
+
 
 
 
