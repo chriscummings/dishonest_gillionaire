@@ -79,6 +79,7 @@ n) for recipe ordered by level
 
 
 wipe prior build pricing!
+
 for recipe sorted by level
 	for world (as home)
 		shopping_list = []

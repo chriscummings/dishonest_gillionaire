@@ -378,15 +378,68 @@ def derive_to_craft_pricing():
 						'quality':'hq'
 					})
 
-		print(material_sources)
+		# print(material_sources)
 
 		for world in World.objects.all():
-			for item_guid in material_sources.keys():
 
+			datacenter = world.data_center
+			region = datacenter.region
+
+			for item_guid in material_sources.keys():
 				sources = material_sources[item_guid]['sources']
 
+				nq = list(filter(lambda x: x['quality']=='nq', sources))
+
+				# NQ, Homeworld
+				x = list(filter(lambda x: x['world']==world.name, nq))
+				s = sorted(x, key=lambda x: x['price_per'])
+				if len(s) > 0:
+					s[0]
+					# set homeworld
+
+				# NQ, DC
+				x = list(filter(lambda x: x['datacenter']==datacenter.name, nq))
+				s = sorted(x, key=lambda x: x['price_per'])
+				if len(s) > 0:
+					s[0]
+					# set dc
+
+				# NQ, Region
+				x = list(filter(lambda x: x['region']=='na', nq)) # FIXME: hardcorded region name
+				print(x)
+				s = sorted(x, key=lambda x: x['price_per'])
+				if len(s) > 0:
+					s[0]
+					# set region
+
+				# create nq craftlist
+
+				hq = list(filter(lambda x: x['quality']=='hq', sources))
+
+				# HQ, Homeworld
+				x = list(filter(lambda x: x['world']==world.name, hq))
+				s = sorted(x, key=lambda x: x['price_per'])
+				if len(s) > 0:
+					s[0]
+					# set homeworld 
 
 
+				# HQ, DC
+				x = list(filter(lambda x: x['datacenter']==datacenter.name, hq))
+				s = sorted(x, key=lambda x: x['price_per'])
+				if len(s) > 0:
+					s[0]
+					# set dc 
+
+				# HQ, Region
+				x = list(filter(lambda x: x['region']=='na', hq)) # FIXME: hardcorded region name
+				print(x)
+				s = sorted(x, key=lambda x: x['price_per'])
+				if len(s) > 0:
+					s[0]
+					# set region
+
+				# create hq craftlist
 
 
 
