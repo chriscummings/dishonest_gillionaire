@@ -55,7 +55,7 @@ class ApiHandlingTest(TestCase):
 
 		self.assertEqual(len(Item.objects.all())*len(World.objects.all()), len(WorldItemFact.objects.all()))
 		self.assertEqual(len(Item.objects.all())*len(World.objects.all()), len(BestPurchasePricing.objects.all()))
-		self.assertEqual(len(World.objects.all())*len(Recipe.objects.all()), len(BestCraftPricing.objects.all()))
+		self.assertEqual(len(World.objects.all())*len(Recipe.objects.all()), len(CraftList.objects.all()))
 
 
 

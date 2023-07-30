@@ -453,23 +453,22 @@ def derive_to_craft_pricing():
 
 
 			craftlist = CraftList()
-			craftlist.item = 
-			craftlist.recipe = 
-			craftlist.homeworld = 
-			craftlist.quality = 
-			craftlist.home_price = 
-			craftlist.home_price_partial = 
-			craftlist.dc_price = 
-			craftlist.dc_price_partial = 
-			craftlist.reg_price = 
-			craftlist.reg_price_partial = 
-			craftlist.dc_shopping_list = 
-			craftlist.reg_shopping_list = 
+			craftlist.item = recipe.item
+			craftlist.recipe = recipe
+			craftlist.homeworld = world
+			craftlist.quality = 'nq'
+			craftlist.home_price = 0             #####
+			craftlist.home_price_partial = True     #####
+			craftlist.dc_price = 0     #####
+			craftlist.dc_price_partial = True     #####
+			craftlist.reg_price = 0     #####
+			craftlist.reg_price_partial = True     #####
+			craftlist.dc_shopping_list = ''     #####
+			craftlist.reg_shopping_list = ''     #####
+			craftlist.save()
 
-
-			# create nq craftlist
 			# create hq craftlist
-
+			raise Exception('create hq craftlist')
 
 
 
