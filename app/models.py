@@ -377,6 +377,32 @@ class PurchasePricing(models.Model):
 
 """
 
+class CraftList(models.Model):
+	item = models.ForeignKey(Item, on_delete=models.CASCADE)
+	recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+	homeworld = models.ForeignKey(World, on_delete=models.CASCADE)
+	quality = models.TextField()
+	home_price = models.IntegerField()
+	home_price_partial = models.BooleanField(default=False)
+	dc_price = models.IntegerField()
+	dc_price_partial = models.BooleanField(default=False)
+	reg_price = models.IntegerField()
+	reg_price_partial = models.BooleanField(default=False)
+	dc_shopping_list = models.TextField()
+	reg_shopping_list = models.TextField()
+	created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+
+
+
+
+
+
+
+
 
 class WorldItemFact(models.Model):
 	nq_sold_mean      = models.FloatField(null=True)

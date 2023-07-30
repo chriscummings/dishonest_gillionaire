@@ -380,7 +380,16 @@ def derive_to_craft_pricing():
 
 		# print(material_sources)
 
+
+
 		for world in World.objects.all():
+			nq_home_list = {'partial':False, 'materials':[]}
+			nq_dc_list = {'partial':False, 'materials':[]}
+			nq_reg_list = {'partial':False, 'materials':[]}
+
+			hq_home_list = {'partial':False, 'materials':[]}
+			hq_dc_list = {'partial':False, 'materials':[]}
+			hq_reg_list = {'partial':False, 'materials':[]}
 
 			datacenter = world.data_center
 			region = datacenter.region
@@ -390,56 +399,76 @@ def derive_to_craft_pricing():
 
 				nq = list(filter(lambda x: x['quality']=='nq', sources))
 
-				# NQ, Homeworld
+				# NQ on Homeworld
 				x = list(filter(lambda x: x['world']==world.name, nq))
 				s = sorted(x, key=lambda x: x['price_per'])
-				if len(s) > 0:
-					s[0]
-					# set homeworld
+				if len(s) == 0:
+					nq_home_list['partial'] = True
+				else:
+					nq_home_list['materials'].append(s[0])
 
-				# NQ, DC
+				# NQ on DC
 				x = list(filter(lambda x: x['datacenter']==datacenter.name, nq))
 				s = sorted(x, key=lambda x: x['price_per'])
-				if len(s) > 0:
-					s[0]
-					# set dc
+				if len(s) == 0:
+					nq_dc_list['partial'] = True
+				else:
+					nq_dc_list['materials'].append(s[0])
 
-				# NQ, Region
+				# NQ on Region
 				x = list(filter(lambda x: x['region']=='na', nq)) # FIXME: hardcorded region name
 				print(x)
 				s = sorted(x, key=lambda x: x['price_per'])
-				if len(s) > 0:
-					s[0]
-					# set region
-
-				# create nq craftlist
+				if len(s) == 0:
+					nq_reg_list['partial'] = True
+				else:
+					nq_reg_list['materials'].append(s[0])
 
 				hq = list(filter(lambda x: x['quality']=='hq', sources))
 
 				# HQ, Homeworld
 				x = list(filter(lambda x: x['world']==world.name, hq))
 				s = sorted(x, key=lambda x: x['price_per'])
-				if len(s) > 0:
-					s[0]
-					# set homeworld 
-
+				if len(s) == 0:
+					hq_home_list['partial'] = True
+				else:
+					hq_home_list['materials'].append(s[0])
 
 				# HQ, DC
 				x = list(filter(lambda x: x['datacenter']==datacenter.name, hq))
 				s = sorted(x, key=lambda x: x['price_per'])
-				if len(s) > 0:
-					s[0]
-					# set dc 
+				if len(s) == 0:
+					hq_dc_list['partial'] = True
+				else:
+					hq_dc_list['materials'].append(s[0])
 
 				# HQ, Region
 				x = list(filter(lambda x: x['region']=='na', hq)) # FIXME: hardcorded region name
 				print(x)
 				s = sorted(x, key=lambda x: x['price_per'])
-				if len(s) > 0:
-					s[0]
-					# set region
+				if len(s) == 0:
+					hq_reg_list['partial'] = True
+				else:
+					hq_reg_list['materials'].append(s[0])
 
-				# create hq craftlist
+
+			craftlist = CraftList()
+			craftlist.item = 
+			craftlist.recipe = 
+			craftlist.homeworld = 
+			craftlist.quality = 
+			craftlist.home_price = 
+			craftlist.home_price_partial = 
+			craftlist.dc_price = 
+			craftlist.dc_price_partial = 
+			craftlist.reg_price = 
+			craftlist.reg_price_partial = 
+			craftlist.dc_shopping_list = 
+			craftlist.reg_shopping_list = 
+
+
+			# create nq craftlist
+			# create hq craftlist
 
 
 
