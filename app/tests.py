@@ -58,7 +58,7 @@ class ApiHandlingTest(TestCase):
 		# Doubled b/c NQ & HQ
 		self.assertEqual((len(World.objects.all())*len(Recipe.objects.all())*2), len(CraftList.objects.all()))
 
-
+		print(CraftList.objects.first().reg_shopping_list)
 
 
 

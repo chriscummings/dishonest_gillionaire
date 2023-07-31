@@ -3,6 +3,7 @@ from app.utils import captute_runtime
 from datetime import datetime, timedelta
 import statistics
 from pprint import pprint as p
+import json
 
 HOURS_AGO_TO_UPDATE = 24 # !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -317,46 +318,25 @@ def summarize_market_stats():
 
 			best_purchase_pricing.save()
 
-
-						'world': fact.world.name,
-						'datacenter': fact.datacenter.name,
-						'region': 'na', # FIXME: hardcoded?!
-						'price_per': fact.nq_list_low,
-						'quality':'nq'
-
-
 def _create_to_buy_json(objs):
-	x = []
-	for obj in objs:
-		x.append({
-			'world':obj['world'],
-			'item_guid': obj[],
-			'item_name': obj[],
-			'quantity': obj[],
-			'price_per': obj['price_per']
-		})
-	return x
+	return json.dumps(objs)
 
 @captute_runtime
 def derive_to_craft_pricing():
-	for recipe in Recipe.objects.all().order_by('level'):
 
-		## EXAMPLE:
-		# [{
-		# 	ingredient_item_id: {
-		# 		'count':0,
-		
-		# 		'sources':[
-		# 			{
-		# 				'world': 'malboro',
-		# 				'datacenter': 'crystal',
-		# 				'region': 'na',
-		# 				'price_per': 777,
-		# 				'quality': 'nq'
-		# 			}
-		# 		]
-		# 	}
-		# }]
+	source_template = {
+		'count': 0,       # Redundantly in every dict but useful
+		'item_name': '',  # Redundantly in every dict but useful
+		'item_guid': '',  # Redundantly in every dict but useful
+		'world': '',
+		'datacenter': '',
+		'region':'na',
+		'price_per':0,
+		'quality':''
+	}
+
+	for recipe in Recipe.objects.all().order_by('level'):
+		print(f"--{recipe.name}--")
 		material_sources = {}
 
 		for ingredient in recipe.ingredients.all():
@@ -366,11 +346,8 @@ def derive_to_craft_pricing():
 			# Create source 'entry' for ingredient
 			if item.guid not in material_sources.keys():
 				material_sources[item.guid] = {
-					'count': count,
-					'name': item.name,
-					'guid': item.guid,
 					'sources': []
-				}
+				} # should just be a list?
 
 			for world in World.objects.all():
 				fact = WorldItemFact.objects.filter(item_id=item, world=world).last()
@@ -381,22 +358,26 @@ def derive_to_craft_pricing():
 					continue
 
 				if fact.nq_list_count:
-					material_sources[item.guid]['sources'].append({
-						'world': fact.world.name,
-						'datacenter': fact.datacenter.name,
-						'region': 'na', # FIXME: hardcoded?!
-						'price_per': fact.nq_list_low,
-						'quality':'nq'
-					})
+					src = source_template.copy()
+					src['count'] = count
+					src['item_name'] = item.name
+					src['item_guid'] = item.guid
+					src['world'] = world.name
+					src['datacenter'] = world.data_center.name
+					src['price_per'] = fact.nq_list_low
+					src['quality'] = 'nq'
+					material_sources[item.guid]['sources'].append(src)
 
 				if fact.hq_list_count:
-					material_sources[item.guid]['sources'].append({
-						'world': fact.world.name,
-						'datacenter': fact.datacenter.name,
-						'region': 'na', # FIXME: hardcoded?!
-						'price_per': fact.hq_list_low,
-						'quality':'hq'
-					})
+					src = source_template.copy()
+					src['count'] = count
+					src['item_name'] = item.name
+					src['item_guid'] = item.guid
+					src['world'] = world.name
+					src['datacenter'] = world.data_center.name
+					src['price_per'] = fact.hq_list_low
+					src['quality'] = 'hq'
+					material_sources[item.guid]['sources'].append(src)
 
 		for world in World.objects.all():
 			nq_home_list = {'partial':False, 'materials':[]}
@@ -433,7 +414,7 @@ def derive_to_craft_pricing():
 
 				# NQ on Region
 				x = list(filter(lambda x: x['region']=='na', nq)) # FIXME: hardcorded region name
-				print(x)
+		
 				s = sorted(x, key=lambda x: x['price_per'])
 				if len(s) == 0:
 					nq_reg_list['partial'] = True
@@ -460,7 +441,7 @@ def derive_to_craft_pricing():
 
 				# HQ, Region
 				x = list(filter(lambda x: x['region']=='na', hq)) # FIXME: hardcorded region name
-				print(x)
+			
 				s = sorted(x, key=lambda x: x['price_per'])
 				if len(s) == 0:
 					hq_reg_list['partial'] = True
@@ -469,7 +450,7 @@ def derive_to_craft_pricing():
 
 			# NQ
 			craftlist = CraftList()
-			craftlist.item = recipe.item
+			craftlist.item = item
 			craftlist.recipe = recipe
 			craftlist.homeworld = world
 			craftlist.quality = 'nq'
