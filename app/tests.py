@@ -4,6 +4,8 @@ from app.api_handling import *
 from app.facts_handling import *
 from glob import glob
 from app.utils import seed_region_dc_world
+from pprint import pprint as p
+
 
 class ApiHandlingTest(TestCase):
 	
@@ -58,8 +60,16 @@ class ApiHandlingTest(TestCase):
 		# Doubled b/c NQ & HQ
 		self.assertEqual((len(World.objects.all())*len(Recipe.objects.all())*2), len(CraftList.objects.all()))
 
-		print(CraftList.objects.first().reg_shopping_list)
 
+
+
+		p(CraftList.objects.first())
+		p(CraftList.objects.first().item.name)
+		p(CraftList.objects.first().homeworld.name)
+		p(CraftList.objects.first().dc_shopping_list)
+		p(CraftList.objects.first().dc_price)
+		p(CraftList.objects.first().reg_shopping_list)
+		p(CraftList.objects.first().reg_price)
 
 
 
