@@ -4,6 +4,8 @@ from app.api_handling import *
 from app.facts_handling import *
 from glob import glob
 from app.utils import seed_region_dc_world
+from pprint import pprint as p
+
 
 class ApiHandlingTest(TestCase):
 	

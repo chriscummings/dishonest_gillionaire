@@ -321,6 +321,8 @@ def summarize_market_stats():
 def _create_to_buy_json(objs):
 	return json.dumps(objs)
 
+
+
 @captute_runtime
 def derive_to_craft_pricing():
 
@@ -336,7 +338,6 @@ def derive_to_craft_pricing():
 	}
 
 	for recipe in Recipe.objects.all().order_by('level'):
-		print(f"--{recipe.name}--")
 		material_sources = {}
 
 		for ingredient in recipe.ingredients.all():
@@ -454,11 +455,11 @@ def derive_to_craft_pricing():
 			craftlist.recipe = recipe
 			craftlist.homeworld = world
 			craftlist.quality = 'nq'
-			craftlist.home_price = sum(item['price_per'] for item in nq_home_list['materials'])
+			craftlist.home_price = sum(item['price_per']*item['count'] for item in nq_home_list['materials'])
 			craftlist.home_price_partial = nq_home_list['partial']
-			craftlist.dc_price = sum(item['price_per'] for item in nq_dc_list['materials'])
+			craftlist.dc_price = sum(item['price_per']*item['count'] for item in nq_dc_list['materials'])
 			craftlist.dc_price_partial = nq_dc_list['partial']
-			craftlist.reg_price = sum(item['price_per'] for item in nq_reg_list['materials'])
+			craftlist.reg_price = sum(item['price_per']*item['count'] for item in nq_reg_list['materials'])
 			craftlist.reg_price_partial = nq_reg_list['partial']
 			craftlist.dc_shopping_list = _create_to_buy_json(nq_dc_list['materials'])
 			craftlist.reg_shopping_list = _create_to_buy_json(nq_reg_list['materials'])
@@ -470,11 +471,11 @@ def derive_to_craft_pricing():
 			craftlist.recipe = recipe
 			craftlist.homeworld = world
 			craftlist.quality = 'hq'
-			craftlist.home_price = sum(item['price_per'] for item in hq_home_list['materials'])
+			craftlist.home_price = sum(item['price_per']*item['count'] for item in hq_home_list['materials'])
 			craftlist.home_price_partial = hq_home_list['partial']
-			craftlist.dc_price = sum(item['price_per'] for item in hq_dc_list['materials'])
+			craftlist.dc_price = sum(item['price_per']*item['count'] for item in hq_dc_list['materials'])
 			craftlist.dc_price_partial = hq_dc_list['partial']
-			craftlist.reg_price = sum(item['price_per'] for item in hq_reg_list['materials'])
+			craftlist.reg_price = sum(item['price_per']*item['count'] for item in hq_reg_list['materials'])
 			craftlist.reg_price_partial = hq_reg_list['partial']
 			craftlist.dc_shopping_list = _create_to_buy_json(hq_dc_list['materials'])
 			craftlist.reg_shopping_list = _create_to_buy_json(hq_reg_list['materials'])
