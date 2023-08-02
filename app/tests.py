@@ -62,19 +62,12 @@ class ApiHandlingTest(TestCase):
 
 		world = World.objects.filter(name='Malboro').last()
 		recipe = Recipe.objects.filter(name='Natron').last()
-
 		craftlist = CraftList.objects.filter(homeworld=world, recipe=recipe, quality='nq').last()
+		self.assertEqual(craftlist.reg_price, 28)
 
-
-		print(craftlist.reg_price)
-		print(craftlist.reg_shopping_list)
 
 
 	
-		# for x in CraftList.objects.all():
-		# 	if x.homeworld.name == 'Malboro':
-		# 		print(x.reg_shopping_list)
-
 
 
 
