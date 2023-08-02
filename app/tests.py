@@ -43,7 +43,6 @@ class ApiHandlingTest(TestCase):
 		seed_region_dc_world()
 		XivApi().ingest_item_details(src_dir="./app/test_data/items")
 		XivApi().ingest_recipe_details(src_dir="./app/test_data/recipes")
-
 		# Seed sales & listings
 		for f in glob("./app/test_data/sales/*.json"):
 			Universalis().fetch_and_process_item_sales("", json_file=f)
@@ -58,7 +57,23 @@ class ApiHandlingTest(TestCase):
 		# Doubled b/c NQ & HQ
 		self.assertEqual((len(World.objects.all())*len(Recipe.objects.all())*2), len(CraftList.objects.all()))
 
-		print(CraftList.objects.first().reg_shopping_list)
+
+		world = World.objects.filter(name='Malboro').last()
+		recipe = Recipe.objects.filter(name='Natron').last()
+
+		craftlist = CraftList.objects.filter(homeworld=world, recipe=recipe, quality='nq').last()
+
+
+		print(craftlist.reg_price)
+		print(craftlist.reg_shopping_list)
+
+
+	
+		# for x in CraftList.objects.all():
+		# 	if x.homeworld.name == 'Malboro':
+		# 		print(x.reg_shopping_list)
+
+
 
 
 
