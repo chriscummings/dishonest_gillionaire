@@ -65,10 +65,9 @@ class ApiHandlingTest(TestCase):
 		craftlist = CraftList.objects.filter(homeworld=world, recipe=recipe, quality='nq').last()
 		self.assertEqual(craftlist.reg_price, 28)
 
-
-
+		#p(craftlist.__dict__)
 	
-
+		
 
 
 

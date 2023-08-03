@@ -112,9 +112,6 @@ class Recipe(models.Model):
 			'ingredients': [],
 		}
 
-
-
-
 		for ingredient in self.ingredients.all():
 			# TODO: !!? calling short summary on this to prevent recursive action... maybe the argument should be long=False??
 			summary['ingredients'].append(ingredient.summary(short=False, sale_limit=0, listing_limit=0, world=world))
@@ -136,25 +133,13 @@ class Ingredient(models.Model):
 	item   = models.ForeignKey(Item, related_name="ingredients", on_delete=models.CASCADE)
 	recipe = models.ForeignKey(Recipe, related_name="ingredients", on_delete=models.CASCADE)
 
-
 	def summary(self, short=False, sale_limit=0, listing_limit=0, world=None):
-
-
-
-
-
-
 		item_summary = self.item.summary(world=world)
-
 		item_summary["material_count"] = self.count
 		item_summary['purchase_pricing']=None
-
-
 		purchase_pricing = BestPurchasePricing.objects.filter(home=world, item=self.item).last()
 		if purchase_pricing:
 			item_summary['purchase_pricing'] = purchase_pricing
-
-
 		return item_summary
 		
 
@@ -171,6 +156,11 @@ class DataCenter(models.Model):
 
 class World(models.Model):
 	name = models.TextField()
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['name'])
+		]
 
 	# Relationships
 	data_center = models.ForeignKey(DataCenter, related_name='worlds', on_delete=models.CASCADE)
@@ -311,100 +301,28 @@ class BestCraftPricing(models.Model):
 
 
 
-
-
-
-"""
-
-class PurchasePricing(models.Model):
-	home = models.ForeignKey(World, related_name='pricing', on_delete=models.CASCADE)
-	datacenter = models.ForeignKey(DataCenter, related_name='facts', on_delete=models.CASCADE)
-	item = models.ForeignKey(Item, related_name='facts', on_delete=models.CASCADE)
-	region = models.ForeignKey(Region, related_name='pricing', on_delete=models.CASCADE)
-
-	# Home sales
-	home_nq_sold_mean      = models.FloatField(null=True)
-	home_nq_sold_median    = models.FloatField(null=True)
-	home_nq_sold_mode      = models.FloatField(null=True)
-	home_nq_sold_high      = models.IntegerField(null=True)
-	home_nq_sold_low       = models.IntegerField(null=True)
-	home_nq_sold_count     = models.IntegerField(null=True)
-	home_nq_sellers_count  = models.IntegerField(null=True) #?
-	home_hq_sold_mean      = models.FloatField(null=True)
-	home_hq_sold_median    = models.FloatField(null=True)
-	home_hq_sold_mode      = models.FloatField(null=True)
-	home_hq_sold_high      = models.IntegerField(null=True)
-	home_hq_sold_low       = models.IntegerField(null=True)
-	home_hq_sold_count     = models.IntegerField(null=True)
-	home_hq_sellers_count  = models.IntegerField(null=True) #?
-
-	# Home availability
-	home_nq_list_mean   = models.FloatField(null=True)
-	home_nq_list_median = models.FloatField(null=True)
-	home_nq_list_mode   = models.FloatField(null=True)
-	home_nq_list_high   = models.IntegerField(null=True)
-	home_nq_list_low    = models.IntegerField(null=True)
-	home_nq_list_count  = models.IntegerField(null=True)
-	home_hq_list_mean   = models.FloatField(null=True)
-	home_hq_list_median = models.FloatField(null=True)
-	home_hq_list_mode   = models.FloatField(null=True)
-	home_hq_list_high   = models.IntegerField(null=True)
-	home_hq_list_low    = models.IntegerField(null=True)
-	home_hq_list_count  = models.IntegerField(null=True)
-
-
-	# Best availability
-	lowest_nq_listing_in_region_price = models.IntegerField(null=True)
-	lowest_nq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
-
-	lowest_nq_listing_in_datacenter_price = models.IntegerField(null=True)
-	lowest_nq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
-
-	lowest_hq_listing_in_region_price = models.IntegerField(null=True)
-	lowest_hq_listing_in_region_world = models.ForeignKey(World, on_delete=models.CASCADE)
-
-	lowest_hq_listing_in_datacenter_price = models.IntegerField(null=True)
-	lowest_hq_listing_in_datacenter_world = models.ForeignKey(World, on_delete=models.CASCADE)
-
-
-	# Profit margins
-	# nq_margin_from_region = 
-	# nq_margin_from_datacenter = 
-	# nq_margin_from_home = 
-	# hq_margin_from_region = 
-	# hq_margin_from_datacenter = 
-	# hq_margin_from_home = 
-
-"""
-
 class CraftList(models.Model):
 	item = models.ForeignKey(Item, on_delete=models.CASCADE)
 	recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 	homeworld = models.ForeignKey(World, on_delete=models.CASCADE)
 	quality = models.TextField()
-	home_price = models.IntegerField()
+	home_price = models.BigIntegerField()
 	home_price_partial = models.BooleanField(default=False)
-	dc_price = models.IntegerField()
+	dc_price = models.BigIntegerField()
 	dc_price_partial = models.BooleanField(default=False)
-	reg_price = models.IntegerField()
+	reg_price = models.BigIntegerField()
 	reg_price_partial = models.BooleanField(default=False)
 	dc_shopping_list = models.TextField()
 	reg_shopping_list = models.TextField()
 	created_at = models.DateTimeField(auto_now_add=True)
 
-
-
-
-
-
-
-
-
-
-
-
-
 class WorldItemFact(models.Model):
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['item_id', 'world_id'])
+		]
+
 	nq_sold_mean      = models.FloatField(null=True)
 	nq_sold_median    = models.FloatField(null=True)
 	nq_sold_mode      = models.FloatField(null=True)

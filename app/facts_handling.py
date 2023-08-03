@@ -463,6 +463,9 @@ def derive_to_craft_pricing():
 			craftlist.reg_price_partial = nq_reg_list['partial']
 			craftlist.dc_shopping_list = _create_to_buy_json(nq_dc_list['materials'])
 			craftlist.reg_shopping_list = _create_to_buy_json(nq_reg_list['materials'])
+
+			p(craftlist.__dict__)
+
 			craftlist.save()
 
 			# HQ
@@ -481,6 +484,7 @@ def derive_to_craft_pricing():
 			craftlist.reg_shopping_list = _create_to_buy_json(hq_reg_list['materials'])
 			craftlist.save()
 
+			p(craftlist.__dict__)
 
 
 

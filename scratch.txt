@@ -75,7 +75,11 @@ n) for recipe ordered by level
 
 # ======================================================================
 
+				fact = WorldItemFact.objects.filter(item_id=item, world=world).last()
 
+
+
+#//////////////////
 
 
 wipe prior build pricing!

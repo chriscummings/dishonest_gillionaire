@@ -1,68 +1,68 @@
 {
     "itemIDs": [ 5491 ],
     "items": {
-    "5491":{
-      "itemID": 5491,
-      "lastUploadTime": 1688835161473,
-      "listings": [
-        {
-          "lastReviewTime": 1688813903,
-          "pricePerUnit": 11,
-          "quantity": 1,
-          "stainID": 0,
-          "worldName": "Siren",
-          "creatorName": "",
-          "creatorID": null,
-          "hq": false,
-          "isCrafted": false,
-          "listingID": "02e6f4096b0sdfsdfsd15350d6f4390ce7cedba0d53f71183582bfdd461d08c5c2a6c53",
-          "materia": [],
-          "onMannequin": false,
-          "retainerCity": 1,
-          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
-          "retainerName": "Retainerbae",
-          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
-          "total": 11
-        },
-        {
-          "lastReviewTime": 1688813903,
-          "pricePerUnit": 99,
-          "quantity": 1,
-          "stainID": 0,
-          "worldName": "Diabolos",
-          "creatorName": "",
-          "creatorID": null,
-          "hq": false,
-          "isCrafted": false,
-          "listingID": "02e6f4096b01535sdfsdfsdfsdf0d6f4390c5e7cedba0d53f71183582bfdd461d05c2a6c53",
-          "materia": [],
-          "onMannequin": false,
-          "retainerCity": 1,
-          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
-          "retainerName": "Retainerbae",
-          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
-          "total": 99
-        },
-        {
-          "lastReviewTime": 1688813903,
-          "pricePerUnit": 333,
-          "quantity": 2,
-          "stainID": 0,
-          "worldName": "Malboro",
-          "creatorName": "",
-          "creatorID": null,
-          "hq": false,
-          "isCrafted": false,
-          "listingID": "02e6f409615350d6f4390cdfdsfd5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
-          "materia": [],
-          "onMannequin": false,
-          "retainerCity": 1,
-          "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
-          "retainerName": "Retainerbae",
-          "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
-          "total": 666
-        }
-      ]    
-    }
-}
+      "5491":{
+        "itemID": 5491,
+        "lastUploadTime": 1688835161473,
+        "listings": [
+          {
+            "lastReviewTime": 1688813903,
+            "pricePerUnit": 11,
+            "quantity": 1,
+            "stainID": 0,
+            "worldName": "Siren",
+            "creatorName": "",
+            "creatorID": null,
+            "hq": false,
+            "isCrafted": false,
+            "listingID": "02e6f4096b0sdfsdfsd15350d6f4390ce7cedba0d53f71183582bfdd461d08c5c2a6c53",
+            "materia": [],
+            "onMannequin": false,
+            "retainerCity": 1,
+            "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+            "retainerName": "Retainerbae",
+            "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+            "total": 11
+          },
+          {
+            "lastReviewTime": 1688813903,
+            "pricePerUnit": 99,
+            "quantity": 1,
+            "stainID": 0,
+            "worldName": "Diabolos",
+            "creatorName": "",
+            "creatorID": null,
+            "hq": false,
+            "isCrafted": false,
+            "listingID": "02e6f4096b01535sdfsdfsdfsdf0d6f4390c5e7cedba0d53f71183582bfdd461d05c2a6c53",
+            "materia": [],
+            "onMannequin": false,
+            "retainerCity": 1,
+            "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+            "retainerName": "Retainerbae",
+            "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+            "total": 99
+          },
+          {
+            "lastReviewTime": 1688813903,
+            "pricePerUnit": 333,
+            "quantity": 2,
+            "stainID": 0,
+            "worldName": "Malboro",
+            "creatorName": "",
+            "creatorID": null,
+            "hq": false,
+            "isCrafted": false,
+            "listingID": "02e6f409615350d6f4390cdfdsfd5e7cedba0d53f71183582bfdd461d08c5c2a6c53",
+            "materia": [],
+            "onMannequin": false,
+            "retainerCity": 1,
+            "retainerID": "ecb8ebf622b56bd44ee99eccea6050607e9f99baf7782d0953a857be81131ea9",
+            "retainerName": "Retainerbae",
+            "sellerID": "ab2aad4a18987499355eab028386c4cbbaa732309342fc66f35be44aca4166ce",
+            "total": 666
+          }
+        ]    
+      }
+  }
 }
