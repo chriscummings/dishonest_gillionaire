@@ -336,6 +336,7 @@ def derive_to_craft_pricing():
 		'price_per':0,
 		'quality':''
 	}
+	worlds = World.objects.all()
 
 	for recipe in Recipe.objects.all().order_by('level'):
 		material_sources = {}
@@ -350,7 +351,7 @@ def derive_to_craft_pricing():
 					'sources': []
 				} # should just be a list?
 
-			for world in World.objects.all():
+			for world in worlds:
 				fact = WorldItemFact.objects.filter(item_id=item, world=world).last()
 
 				if not fact:
@@ -380,7 +381,7 @@ def derive_to_craft_pricing():
 					src['quality'] = 'hq'
 					material_sources[item.guid]['sources'].append(src)
 
-		for world in World.objects.all():
+		for world in worlds:
 			nq_home_list = {'partial':False, 'materials':[]}
 			nq_dc_list = {'partial':False, 'materials':[]}
 			nq_reg_list = {'partial':False, 'materials':[]}
@@ -463,9 +464,6 @@ def derive_to_craft_pricing():
 			craftlist.reg_price_partial = nq_reg_list['partial']
 			craftlist.dc_shopping_list = _create_to_buy_json(nq_dc_list['materials'])
 			craftlist.reg_shopping_list = _create_to_buy_json(nq_reg_list['materials'])
-
-			p(craftlist.__dict__)
-
 			craftlist.save()
 
 			# HQ
@@ -484,7 +482,6 @@ def derive_to_craft_pricing():
 			craftlist.reg_shopping_list = _create_to_buy_json(hq_reg_list['materials'])
 			craftlist.save()
 
-			p(craftlist.__dict__)
 
 
 
